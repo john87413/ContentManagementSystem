@@ -2,10 +2,10 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-import categoryApi from "@/api/categoryApi";
+import carouselApi from "@/api/carouselApi";
 
 const router = useRouter();
-const categories = ref([]);
+const carousels = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const totalItems = ref(0);
@@ -14,11 +14,11 @@ const searchForm = ref({
   name: "",
 });
 
-const fetchCategories = async (page = 1, limit = 10, nameQuery = "") => {
+const fetchCarousels = async (page = 1, limit = 10, nameQuery = "") => {
   try {
     loading.value = true;
-    const res = await categoryApi.fetchCategories(page, limit, nameQuery);
-    categories.value = res.data.categories;
+    const res = await carouselApi.fetchCarousels(page, limit, nameQuery);
+    carousels.value = res.data.carousels;
     totalItems.value = res.data.total;
     loading.value = false;
   } catch (error) {
@@ -26,20 +26,20 @@ const fetchCategories = async (page = 1, limit = 10, nameQuery = "") => {
   }
 };
 
-const editCategory = (id) => {
-  router.push({ path: `/categories/edit/${id}` });
+const editCarousel = (id) => {
+  router.push({ path: `/carousels/edit/${id}` });
 };
 
-const deleteCategory = async (id, name) => {
+const deleteCarousel = async (id, name) => {
   try {
-    await ElMessageBox.confirm(`你確定要刪除分類 "${name}" 嗎？`, "警告", {
+    await ElMessageBox.confirm(`你確定要刪除配料 "${name}" 嗎？`, "警告", {
       confirmButtonText: "確定",
       cancelButtonText: "取消",
       type: "warning",
     });
-    await categoryApi.deleteCategory(id);
+    await carouselApi.deleteCarousel(id);
     ElMessage.success("刪除成功");
-    await fetchCategories(currentPage.value, pageSize.value);
+    await fetchCarousels(currentPage.value, pageSize.value);
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("刪除失敗: " + error.message);
@@ -49,19 +49,19 @@ const deleteCategory = async (id, name) => {
 
 const handlePageChange = (newPage) => {
   currentPage.value = newPage;
-  fetchCategories(currentPage.value, pageSize.value, searchForm.value.name);
+  fetchCarousels(currentPage.value, pageSize.value, searchForm.value.name);
 };
 
 const handleSearch = () => {
   currentPage.value = 1;
-  fetchCategories(currentPage.value, pageSize.value, searchForm.value.name);
+  fetchCarousels(currentPage.value, pageSize.value, searchForm.value.name);
 };
 
 const ClearSearch = () => {
   searchForm.value.parent = "";
   searchForm.value.name = "";
   currentPage.value = 1;
-  fetchCategories(currentPage.value, pageSize.value);
+  fetchCarousels(currentPage.value, pageSize.value);
 };
 
 const formatDate = (date) => {
@@ -70,34 +70,41 @@ const formatDate = (date) => {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   };
-  return new Intl.DateTimeFormat('zh-TW', options).format(new Date(date));
+  return new Intl.DateTimeFormat("zh-TW", options).format(new Date(date));
 };
 
 onMounted(async () => {
-  await fetchCategories();
+  await fetchCarousels();
 });
 </script>
 
-
 <template>
   <div>
-    <h1>分類列表</h1>
-    <el-form :model="searchForm" :inline="true" style="margin-bottom: 1rem;" @submit.prevent="handleSearch">
+    <h1>配料列表</h1>
+    <el-form
+      :model="searchForm"
+      :inline="true"
+      style="margin-bottom: 1rem"
+      @submit.prevent="handleSearch"
+    >
       <el-form-item label="分類名稱">
-        <el-input v-model="searchForm.name" placeholder="搜尋分類名稱"></el-input>
+        <el-input
+          v-model="searchForm.name"
+          placeholder="搜尋分類名稱"
+        ></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSearch">搜尋</el-button>
         <el-button type="primary" @click="ClearSearch">清除搜尋</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="categories" v-loading="loading">
-      <el-table-column prop="name" label="分類名稱"></el-table-column>
-      <el-table-column prop="parent.name" label="上級分類"></el-table-column>
+    <el-table :data="carousels" v-loading="loading">
+      <el-table-column prop="name" label="配料名稱"> </el-table-column>
+      <el-table-column prop="price" label="價格"> </el-table-column>
       <el-table-column prop="updatedAt" label="更新時間" width="220">
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
@@ -105,13 +112,25 @@ onMounted(async () => {
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="200">
         <template #default="{ row }">
-          <el-button type="primary" @click="editCategory(row._id)">編輯</el-button>
-          <el-button type="primary" @click="deleteCategory(row._id, row.name)">刪除</el-button>
+          <el-button type="primary" @click="editCarousel(row._id)"
+            >編輯</el-button
+          >
+          <el-button type="primary" @click="deleteCarousel(row._id, row.name)"
+            >刪除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination style="margin-top: 2rem" background size="default" layout="prev, pager, next, total"
-      :current-page="currentPage" :page-size="pageSize" :total="totalItems" @current-change="handlePageChange">
+    <el-pagination
+      style="margin-top: 2rem"
+      background
+      size="default"
+      layout="prev, pager, next, total"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      :total="totalItems"
+      @current-change="handlePageChange"
+    >
     </el-pagination>
   </div>
 </template>

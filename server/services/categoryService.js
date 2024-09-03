@@ -1,27 +1,33 @@
-const categoryModel = require('../models/categoryModel');
+const categoryModel = require("../models/categoryModel");
 
 module.exports = {
-    createCategory: async (data) => {
-        const category = new categoryModel(data);
-        return await category.save();
-    },
+  createCategory: async (data) => {
+    const category = new categoryModel(data);
+    return await category.save();
+  },
 
-    getCategories: async () => {
-        const options = {
-            populate: { path: 'parent' }
-        };
-        return await categoryModel.find().setOptions(options);
-    },
+  getCategoriesWithPagination: async (options, query) => {
+    const [categories, total] = await Promise.all([
+      categoryModel.find(query).setOptions(options),
+      categoryModel.countDocuments(query)
+    ]);
 
-    getCategoryById: async (id) => {
-        return await categoryModel.findById(id);
-    },
+    return { categories, total };
+  },
 
-    updateCategory: async (id, data) => {
-        return await categoryModel.findByIdAndUpdate(id, data, { new: true });
-    },
+  getAllCategories: async () => {
+    return await categoryModel.find();
+  },
 
-    deleteCategory: async (id) => {
-        return await categoryModel.findByIdAndDelete(id);
-    }
+  getCategoryById: async (id) => {
+    return await categoryModel.findById(id);
+  },
+
+  updateCategory: async (id, data, options = {}) => {
+    return await categoryModel.findByIdAndUpdate(id, data, options);
+  },
+
+  deleteCategory: async (id) => {
+    return await categoryModel.findByIdAndDelete(id);
+  },
 };

@@ -4,19 +4,6 @@ import MainView from '@/views/MainView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: HomeView
-    // },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // },
     {
       path: '/',
       name: 'main',
@@ -38,9 +25,9 @@ const router = createRouter({
         { path: '/articles/edit/:id', component: () => import('@/views/article/ArticleEdit.vue'), props: true },
         { path: '/articles/list', component: () => import('@/views/article/ArticleList.vue') },
 
-        { path: '/stores/create', component: () => import('@/views/store/StoreEdit.vue') },
-        { path: '/stores/edit/:id', component: () => import('@/views/store/StoreEdit.vue'), props: true },
-        { path: '/stores/list', component: () => import('@/views/store/StoreList.vue') },
+        { path: '/shops/create', component: () => import('@/views/shop/ShopEdit.vue') },
+        { path: '/shops/edit/:id', component: () => import('@/views/shop/ShopEdit.vue'), props: true },
+        { path: '/shops/list', component: () => import('@/views/shop/ShopList.vue') },
 
         { path: '/users/create', component: () => import('@/views/user/UserEdit.vue') },
         { path: '/users/edit/:id', component: () => import('@/views/user/UserEdit.vue'), props: true },

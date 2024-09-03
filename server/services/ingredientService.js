@@ -1,24 +1,33 @@
-const ingredientModel = require('../models/ingredientModel');
+const ingredientModel = require("../models/ingredientModel");
 
 module.exports = {
-    createIngredient: async (data) => {
-        const ingredient = new ingredientModel(data);
-        return await ingredient.save();
-    },
+  createIngredient: async (data) => {
+    const ingredient = new ingredientModel(data);
+    return await ingredient.save();
+  },
 
-    getIngredients: async () => {
-        return await ingredientModel.find();
-    },
+  getIngredientsWithPagination: async (options, query) => {
+    const [ingredients, total] = await Promise.all([
+      ingredientModel.find(query).setOptions(options),
+      ingredientModel.countDocuments(query)
+    ]);
 
-    getIngredientById: async (id) => {
-        return await ingredientModel.findById(id);
-    },
+    return { ingredients, total };
+  },
 
-    updateIngredient: async (id, data) => {
-        return await ingredientModel.findByIdAndUpdate(id, data, { new: true });
-    },
+  getAllIngredients: async () => {
+    return await ingredientModel.find();
+  },
 
-    deleteIngredient: async (id) => {
-        return await ingredientModel.findByIdAndDelete(id);
-    }
+  getIngredientById: async (id) => {
+    return await ingredientModel.findById(id);
+  },
+
+  updateIngredient: async (id, data, options = {}) => {
+    return await ingredientModel.findByIdAndUpdate(id, data, options);
+  },
+
+  deleteIngredient: async (id) => {
+    return await ingredientModel.findByIdAndDelete(id);
+  },
 };

@@ -1,11 +1,99 @@
-<script setup>
-
-</script>
-
 <template>
-    <h1>Title</h1>
+  <div>
+    <h1>{{ id ? "編輯" : "新建" }}配料</h1>
+    <el-form
+      v-loading="loading"
+      ref="formRef"
+      :model="model"
+      :rules="rules"
+      label-width="70px"
+      @submit.prevent="save"
+    >
+      <el-form-item label="名稱" prop="name">
+        <el-input v-model="model.name"></el-input>
+      </el-form-item>
+      <el-form-item label="價格" prop="price">
+        <el-input-number
+          :min="1"
+          :max="100"
+          v-model="model.price"
+          placeholder="1~100"
+        ></el-input-number>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" native-type="submit">儲存</el-button>
+        <el-button plain @click="cancel">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
-<style lang="scss" scoped>
-    
-</style>
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import ingredientApi from "@/api/ingredientApi";
+
+const props = defineProps({
+  id: String, // 配料ID
+});
+
+const router = useRouter();
+const loading = ref(true);
+const formRef = ref(null);
+const model = ref({
+  name: "",
+  price: null,
+});
+
+const rules = {
+  name: { required: true, message: "請輸入配料名稱", trigger: "blur" },
+  price: { required: true, message: "請輸入配料價格" },
+};
+
+
+const save = async () => {
+  formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        if (props.id) {
+          await ingredientApi.updateIngredient(props.id, model.value);
+        } else {
+          await ingredientApi.createIngredient(model.value);
+        }
+        router.push("/ingredients/list");
+        ElMessage({
+          type: "success",
+          message: "儲存成功",
+        });
+      } catch (error) {
+        ElMessage.error("儲存失敗: " + error.response.data.message);
+      }
+    } else {
+      ElMessage({
+        type: "warning",
+        message: "請依照指示完成表單",
+      });
+    }
+  });
+};
+
+const fetchIngredient = async () => {
+  try {
+    const res = await ingredientApi.fetchIngredient(props.id);
+    model.value = res.data;
+  } catch (error) {
+    ElMessage.error("獲取配料資料失敗: " + error.message);
+  }
+};
+
+const cancel = () => {
+  router.push("/ingredients/list");
+};
+
+onMounted(async () => {
+  loading.value = true;
+  props.id && (await fetchIngredient());
+  loading.value = false;
+});
+</script>

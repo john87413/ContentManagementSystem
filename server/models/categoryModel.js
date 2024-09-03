@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const schema = new mongoose.Schema({
-    name: { type: String },
-    parent: { type: mongoose.SchemaTypes.ObjectId, ref: 'Category'},
+    name: { type: String, unique: [true, '名稱不得重複'], required: [true, '名稱不得為空'] },
+    parent: { type: mongoose.SchemaTypes.ObjectId, ref: 'Category' },
 }, { timestamps: true })
 
 // schema.virtual('children',{
