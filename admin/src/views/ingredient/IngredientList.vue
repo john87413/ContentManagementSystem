@@ -57,12 +57,17 @@ import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import ingredientApi from "@/api/ingredientApi";
 
+// router
 const router = useRouter();
+
+// pagination list
 const ingredients = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const totalItems = ref(0);
 const pageSize = ref(10);
+
+// search
 const searchForm = ref({
   name: "",
 });
@@ -85,7 +90,7 @@ const editIngredient = (id) => {
 
 const deleteIngredient = async (id, name) => {
   try {
-    await ElMessageBox.confirm(`你確定要刪除配料 "${name}" 嗎？`, "警告", {
+    await ElMessageBox.confirm(`你確定要刪除 "${name}" 嗎？`, "警告", {
       confirmButtonText: "確定",
       cancelButtonText: "取消",
       type: "warning",

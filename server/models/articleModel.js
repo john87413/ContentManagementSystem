@@ -7,14 +7,12 @@ const schema = new mongoose.Schema({
     required: true,
   },
   images: {
-    type: [
-      {
-        name: { type: String },
-        url: { type: String },
-      },
-    ],
+    type: {
+      name: { type: String },
+      url: { type: String },
+    },
   },
   body: { type: String },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Article", schema);

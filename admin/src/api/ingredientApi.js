@@ -6,23 +6,23 @@ const fetchIngredients = (page, limit, nameQuery = "") => {
         limit,
         nameQuery,
     };
-    return axios.get("/ingredients", { params });
+    return axios.get("/rest/ingredients", { params });
 };
 
 const fetchIngredient = (id) => {
-    return axios.get(`/ingredients/${id}`);
+    return axios.get(`/rest/ingredients/${id}`);
 };
 
 const createIngredient = (data) => {
-    return axios.post("/ingredients", data);
+    return axios.post("/rest/ingredients", data);
 };
 
 const updateIngredient = (id, data) => {
-    return axios.put(`/ingredients/${id}`, data);
+    return axios.put(`/rest/ingredients/${id}`, data);
 };
 
 const deleteIngredient = (id) => {
-    return axios.delete(`/ingredients/${id}`);
+    return axios.delete(`/rest/ingredients/${id}`);
 };
 
 export default {

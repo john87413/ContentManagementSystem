@@ -17,9 +17,9 @@ const router = createRouter({
         { path: '/ingredients/edit/:id', component: () => import('@/views/ingredient/IngredientEdit.vue'), props: true },
         { path: '/ingredients/list', component: () => import('@/views/ingredient/IngredientList.vue') },
 
-        { path: '/drink/create', component: () => import('@/views/drink/DrinkEdit.vue') },
-        { path: '/drink/edit/:id', component: () => import('@/views/drink/DrinkEdit.vue'), props: true },
-        { path: '/drink/list', component: () => import('@/views/drink/DrinkList.vue') },
+        { path: '/drinks/create', component: () => import('@/views/drink/DrinkEdit.vue') },
+        { path: '/drinks/edit/:id', component: () => import('@/views/drink/DrinkEdit.vue'), props: true },
+        { path: '/drinks/list', component: () => import('@/views/drink/DrinkList.vue') },
 
         { path: '/articles/create', component: () => import('@/views/article/ArticleEdit.vue') },
         { path: '/articles/edit/:id', component: () => import('@/views/article/ArticleEdit.vue'), props: true },

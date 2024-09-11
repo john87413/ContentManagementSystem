@@ -24,8 +24,8 @@
 
           <el-menu-item-group>
             <template #title>飲品</template>
-            <el-menu-item index="/drink/create">新建飲品</el-menu-item>
-            <el-menu-item index="/drink/list">飲品列表</el-menu-item>
+            <el-menu-item index="/drinks/create">新建飲品</el-menu-item>
+            <el-menu-item index="/drinks/list">飲品列表</el-menu-item>
           </el-menu-item-group>
 
         </el-sub-menu>

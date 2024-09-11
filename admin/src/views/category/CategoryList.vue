@@ -4,12 +4,17 @@ import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import categoryApi from "@/api/categoryApi";
 
+// router
 const router = useRouter();
+
+// pagination list
 const categories = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const totalItems = ref(0);
 const pageSize = ref(10);
+
+// search
 const searchForm = ref({
   name: "",
 });
@@ -22,7 +27,8 @@ const fetchCategories = async (page = 1, limit = 10, nameQuery = "") => {
     totalItems.value = res.data.total;
     loading.value = false;
   } catch (error) {
-    ElMessage.error("取得資料失敗:" + error.message);
+    console.log(error);
+    ElMessage.error("取得資料失敗");
   }
 };
 
@@ -32,7 +38,7 @@ const editCategory = (id) => {
 
 const deleteCategory = async (id, name) => {
   try {
-    await ElMessageBox.confirm(`你確定要刪除分類 "${name}" 嗎？`, "警告", {
+    await ElMessageBox.confirm(`你確定要刪除 "${name}" 嗎？`, "警告", {
       confirmButtonText: "確定",
       cancelButtonText: "取消",
       type: "warning",

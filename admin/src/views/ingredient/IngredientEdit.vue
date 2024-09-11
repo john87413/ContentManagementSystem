@@ -29,37 +29,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import ingredientApi from "@/api/ingredientApi";
 
 const props = defineProps({
-  id: String, // 配料ID
+  id: String,
 });
 
 const router = useRouter();
 const loading = ref(true);
 const formRef = ref(null);
-const model = ref({
+const model = reactive({
   name: "",
   price: null,
 });
 
 const rules = {
   name: { required: true, message: "請輸入配料名稱", trigger: "blur" },
-  price: { required: true, message: "請輸入配料價格" },
+  price: { required: true, message: "請輸入配料價格", trigger: "blur" },
 };
-
 
 const save = async () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
         if (props.id) {
-          await ingredientApi.updateIngredient(props.id, model.value);
+          await ingredientApi.updateIngredient(props.id, model);
         } else {
-          await ingredientApi.createIngredient(model.value);
+          await ingredientApi.createIngredient(model);
         }
         router.push("/ingredients/list");
         ElMessage({
@@ -67,7 +66,7 @@ const save = async () => {
           message: "儲存成功",
         });
       } catch (error) {
-        ElMessage.error("儲存失敗: " + error.response.data.message);
+        ElMessage.error("儲存失敗: " + error.message);
       }
     } else {
       ElMessage({
@@ -81,7 +80,7 @@ const save = async () => {
 const fetchIngredient = async () => {
   try {
     const res = await ingredientApi.fetchIngredient(props.id);
-    model.value = res.data;
+    Object.assign(model, res.data);
   } catch (error) {
     ElMessage.error("獲取配料資料失敗: " + error.message);
   }
@@ -93,7 +92,9 @@ const cancel = () => {
 
 onMounted(async () => {
   loading.value = true;
-  props.id && (await fetchIngredient());
+  if (props.id) {
+    await fetchIngredient();
+  }
   loading.value = false;
 });
 </script>

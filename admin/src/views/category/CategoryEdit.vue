@@ -5,7 +5,7 @@
       ref="formRef"
       :rules="rules"
       :model="model"
-      label-width="120px"
+      label-width="70px"
       @submit.prevent="save"
       v-loading="loading"
     >
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import categoryApi from "@/api/categoryApi";
@@ -41,27 +41,27 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const model = ref({ parent: null, name: "" });
-const parents = ref([]);
+const model = reactive({ parent: null, name: "" });
+const parents = reactive([]);
 const loading = ref(false);
 const formRef = ref(null);
-const rules = ref({
+const rules = {
   name: [{ required: true, message: "名稱不得空白", trigger: "blur" }],
-});
+};
 
 const save = async () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
         if (props.id) {
-          await categoryApi.updateCategory(props.id, model.value);
+          await categoryApi.updateCategory(props.id, model);
         } else {
-          await categoryApi.createCategory(model.value);
+          await categoryApi.createCategory(model);
         }
         router.push("/categories/list");
         ElMessage({ type: "success", message: "儲存成功" });
       } catch (error) {
-        ElMessage.error("儲存失敗: " + error.message);
+        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
     } else {
       ElMessage.error("請修正表單中的錯誤");
@@ -70,16 +70,22 @@ const save = async () => {
 };
 
 const fetchCategory = async () => {
-  const res = await categoryApi.fetchCategory(props.id);
-  const category = res.data;
-  if (category) {
-    model.value = { ...category };
+  try {
+    const res = await categoryApi.fetchCategory(props.id);
+    Object.assign(model, res.data);
+  } catch (error) {
+    ElMessage.error("獲取類別資料失敗: " + error.message);
   }
 };
 
 const fetchParents = async () => {
-  const res = await categoryApi.fetchCategories();
-  parents.value = res.data.filter((c) => c._id !== props.id);
+  try {
+    const res = await categoryApi.fetchCategories();
+    parents.length = 0;
+    parents.push(...res.data.filter((c) => c._id !== props.id));
+  } catch (error) {
+    ElMessage.error("獲取上級類別資料失敗: " + error.message);
+  }
 };
 
 const cancel = () => {
