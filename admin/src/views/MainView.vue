@@ -35,8 +35,8 @@
 
           <el-menu-item-group>
             <template #title>輪播圖</template>
-            <el-menu-item index="/articles/create">新建輪播圖</el-menu-item>
-            <el-menu-item index="/articles/list">輪播圖列表</el-menu-item>
+            <el-menu-item index="/carousels/create">新建輪播圖</el-menu-item>
+            <el-menu-item index="/carousels/list">輪播圖列表</el-menu-item>
           </el-menu-item-group>
 
           <el-menu-item-group>

@@ -25,6 +25,10 @@ const router = createRouter({
         { path: '/articles/edit/:id', component: () => import('@/views/article/ArticleEdit.vue'), props: true },
         { path: '/articles/list', component: () => import('@/views/article/ArticleList.vue') },
 
+        { path: '/carousels/create', component: () => import('@/views/carousel/CarouselEdit.vue') },
+        { path: '/carousels/edit/:id', component: () => import('@/views/carousel/CarouselEdit.vue'), props: true },
+        { path: '/carousels/list', component: () => import('@/views/carousel/CarouselList.vue') },
+
         { path: '/shops/create', component: () => import('@/views/shop/ShopEdit.vue') },
         { path: '/shops/edit/:id', component: () => import('@/views/shop/ShopEdit.vue'), props: true },
         { path: '/shops/list', component: () => import('@/views/shop/ShopList.vue') },

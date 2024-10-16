@@ -1,107 +1,15 @@
-<script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
-import categoryApi from "@/api/categoryApi";
-
-// router
-const router = useRouter();
-
-// pagination list
-const categories = ref([]);
-const loading = ref(false);
-const currentPage = ref(1);
-const totalItems = ref(0);
-const pageSize = ref(10);
-
-// search
-const searchForm = ref({
-  name: "",
-});
-
-const fetchCategories = async (page = 1, limit = 10, nameQuery = "") => {
-  try {
-    loading.value = true;
-    const res = await categoryApi.fetchCategories(page, limit, nameQuery);
-    categories.value = res.data.categories;
-    totalItems.value = res.data.total;
-    loading.value = false;
-  } catch (error) {
-    console.log(error);
-    ElMessage.error("取得資料失敗");
-  }
-};
-
-const editCategory = (id) => {
-  router.push({ path: `/categories/edit/${id}` });
-};
-
-const deleteCategory = async (id, name) => {
-  try {
-    await ElMessageBox.confirm(`你確定要刪除 "${name}" 嗎？`, "警告", {
-      confirmButtonText: "確定",
-      cancelButtonText: "取消",
-      type: "warning",
-    });
-    await categoryApi.deleteCategory(id);
-    ElMessage.success("刪除成功");
-    await fetchCategories(currentPage.value, pageSize.value);
-  } catch (error) {
-    if (error !== "cancel") {
-      ElMessage.error("刪除失敗: " + error.message);
-    }
-  }
-};
-
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage;
-  fetchCategories(currentPage.value, pageSize.value, searchForm.value.name);
-};
-
-const handleSearch = () => {
-  currentPage.value = 1;
-  fetchCategories(currentPage.value, pageSize.value, searchForm.value.name);
-};
-
-const ClearSearch = () => {
-  searchForm.value.parent = "";
-  searchForm.value.name = "";
-  currentPage.value = 1;
-  fetchCategories(currentPage.value, pageSize.value);
-};
-
-const formatDate = (date) => {
-  if (!date) return "";
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  };
-  return new Intl.DateTimeFormat('zh-TW', options).format(new Date(date));
-};
-
-onMounted(async () => {
-  await fetchCategories();
-});
-</script>
-
-
 <template>
-  <div>
-    <h1>分類列表</h1>
-    <el-form :model="searchForm" :inline="true" style="margin-bottom: 1rem;" @submit.prevent="handleSearch">
-      <el-form-item label="分類名稱">
-        <el-input v-model="searchForm.name" placeholder="搜尋分類名稱"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜尋</el-button>
-        <el-button type="primary" @click="ClearSearch">清除搜尋</el-button>
-      </el-form-item>
-    </el-form>
-    <el-table :data="categories" v-loading="loading">
+  <GenericList
+    title="分類列表"
+    searchLabel="分類名稱"
+    searchPlaceholder="搜尋分類名稱"
+    :fetchItemsApi="fetchCategories"
+    :beforeDeleteItem="beforeDeleteCategory"
+    :deleteItemApi="deleteCategory"
+    editPath="/categories/edit"
+    itemsKey="categories"
+  >
+    <template #table-columns="{ formatDate }">
       <el-table-column prop="name" label="分類名稱"></el-table-column>
       <el-table-column prop="parent.name" label="上級分類"></el-table-column>
       <el-table-column prop="updatedAt" label="更新時間" width="220">
@@ -109,15 +17,23 @@ onMounted(async () => {
           {{ formatDate(row.updatedAt) }}
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" width="200">
-        <template #default="{ row }">
-          <el-button type="primary" @click="editCategory(row._id)">編輯</el-button>
-          <el-button type="primary" @click="deleteCategory(row._id, row.name)">刪除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination style="margin-top: 2rem" background size="default" layout="prev, pager, next, total"
-      :current-page="currentPage" :page-size="pageSize" :total="totalItems" @current-change="handlePageChange">
-    </el-pagination>
-  </div>
+    </template>
+  </GenericList>
 </template>
+
+<script setup>
+import GenericList from "@/components/GenericList.vue";
+import categoryApi from "@/api/categoryApi";
+
+const fetchCategories = async (page, limit, nameQuery) => {
+  return await categoryApi.fetchCategories(page, limit, nameQuery);
+};
+
+const beforeDeleteCategory = (category) => {
+  return `你確定要刪除 "${category.name}" 嗎？`;
+};
+
+const deleteCategory = async (id) => {
+  return await categoryApi.deleteCategory(id);
+};
+</script>

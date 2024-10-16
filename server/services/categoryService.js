@@ -1,33 +1,42 @@
-const categoryModel = require("../models/categoryModel");
+class CategoryService {
+  constructor(categoryModel) {
+    this.categoryModel = categoryModel;
+  }
 
-module.exports = {
-  createCategory: async (data) => {
-    const category = new categoryModel(data);
+  createCategory = async (data) => {
+    const category = new this.categoryModel(data);
     return await category.save();
-  },
+  }
 
-  getCategoriesWithPagination: async (options, query) => {
+  getCategoriesWithPagination = async (options, query) => {
     const [categories, total] = await Promise.all([
-      categoryModel.find(query).setOptions(options),
-      categoryModel.countDocuments(query)
+      this.categoryModel.find(query).setOptions(options),
+      this.categoryModel.countDocuments(query),
     ]);
 
     return { categories, total };
-  },
+  }
 
-  getAllCategories: async () => {
-    return await categoryModel.find();
-  },
+  getAllCategories = async () => {
+    return await this.categoryModel.find();
+  }
 
-  getCategoryById: async (id) => {
-    return await categoryModel.findById(id);
-  },
+  getCategoryById = async (id) => {
+    return await this.categoryModel.findById(id);
+  }
 
-  updateCategory: async (id, data, options = {}) => {
-    return await categoryModel.findByIdAndUpdate(id, data, options);
-  },
+  updateCategory = async (id, data, options = {}) => {
+    return await this.categoryModel.findByIdAndUpdate(id, data, { new: true, ...options });
+  }
 
-  deleteCategory: async (id) => {
-    return await categoryModel.findByIdAndDelete(id);
-  },
-};
+  deleteCategory = async (id) => {
+    const category = await this.categoryModel.findById(id);
+    if (category) {
+      await category.deleteOne();
+    }
+    return category;
+  }
+}
+
+const categoryModel = require("../models/categoryModel");
+module.exports = new CategoryService(categoryModel);

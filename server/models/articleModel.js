@@ -1,18 +1,30 @@
 const mongoose = require("mongoose");
+const UploadService = require("../services/uploadService");
 
 const schema = new mongoose.Schema({
   title: { type: String, unique: [true, '標題不得重複'], required: [true, '標題不得為空'] },
-  categories: {
-    type: [{ type: mongoose.SchemaTypes.ObjectId, ref: "Category" }],
-    required: true,
+  category: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "Category",
+    required: [true, "類別不得為空"],
   },
-  images: {
+  image: {
     type: {
-      name: { type: String },
-      url: { type: String },
+      fileName: { type: String },
+      imgUrl: { type: String },
     },
   },
-  body: { type: String },
+  content: { type: String },
 }, { timestamps: true });
+
+schema.pre('deleteOne', { document: true, query: false }, async function() {
+  try {
+    if (this.image && this.image.fileName) {
+      await UploadService.deleteImage(this.image.fileName);
+    }
+  } catch (error) {
+    throw new Error('圖片刪除失敗');
+  }
+});
 
 module.exports = mongoose.model("Article", schema);

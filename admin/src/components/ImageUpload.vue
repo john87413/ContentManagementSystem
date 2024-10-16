@@ -5,17 +5,27 @@
     :class="{ disabled: uploadDisabled }"
     action="#"
     list-type="picture-card"
-    :limit="2"
+    :limit="imageLimit"
     :auto-upload="false"
     :on-exceed="handleExceed"
     :on-change="handleChange"
     :http-request="uploadImages"
+    v-loading="isLoading"
+    element-loading-text="處理中..."
   >
     <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
 
     <template #file="{ file }">
-      <div>
-        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+      <div class="avatar-container">
+        <img
+          v-if="!file.raw || file.thumbnailUrl"
+          class="el-upload-list__item-thumbnail"
+          :src="!file.raw ? file.url : file.thumbnailUrl"
+          alt=""
+        />
+        <div v-else class="el-upload-list__item-thumbnail">
+          處理中...
+        </div>
         <span class="el-upload-list__item-actions">
           <span
             class="el-upload-list__item-preview"
@@ -43,9 +53,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Delete, Download, Plus, ZoomIn } from "@element-plus/icons-vue";
+
+import { compressImage } from "@/utils/imageCompression";
+import { generateThumbnail } from "@/utils/thumbnailGeneration";
 import uploadApi from "@/api/uploadApi";
 
 const props = defineProps({
@@ -53,27 +66,31 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  imageLimit: {
+    type: Number,
+    default: () => 1,
+  },
 });
 
 const imageList = ref([]);
 const uploadDisabled = ref(false);
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
+const isLoading = ref(false);
 
-watch(
-  () => props.originalImageList,
-  (newVal) => {
-    if (newVal && imageList.value.length === 0) {
-      imageList.value = newVal.map((file) => ({
-        name: file.fileName,
-        url: file.imgUrl,
-        expiresAt: file.expiresAt,
-      }));
-      if (imageList.value.length >= 2) uploadDisabled.value = true;
+// 初始化圖片內容
+const setContent = (newVal) => {
+  if (newVal && imageList.value.length === 0) {
+    imageList.value = newVal.map((file) => ({
+      name: file.fileName,
+      url: file.imgUrl,
+      expiresAt: file.expiresAt,
+    }));
+    if (imageList.value.length >= props.imageLimit) {
+      uploadDisabled.value = true;
     }
-  },
-  { immediate: true }
-);
+  }
+};
 
 // 處理圖片預覽
 const handlePictureCardPreview = (file) => {
@@ -100,7 +117,7 @@ const handleRemove = async (file) => {
       type: "warning",
     });
     imageList.value.splice(imageList.value.indexOf(file), 1);
-    if (imageList.value.length < 2) uploadDisabled.value = false;
+    if (imageList.value.length < props.imageLimit) uploadDisabled.value = false;
     ElMessage.success("圖片已刪除");
   } catch (error) {
     if (error !== "cancel") {
@@ -111,25 +128,39 @@ const handleRemove = async (file) => {
 
 // 處理圖片數量上限
 const handleExceed = () => {
-  ElMessage.error("最多只能上傳 2 張圖片");
+  ElMessage.error(`最多只能上傳 ${props.imageLimit} 張圖片`);
 };
 
-const handleChange = (file, fileList) => {
+// 處理圖片選擇
+const handleChange = async (file, fileList) => {
   if (!file.raw.type.startsWith("image/")) {
     ElMessage.error("只能上傳圖片！");
     fileList.pop();
-    return false;
-  }
-  if (file.raw.size / 1024 / 1024 > 5) {
+  } else if (file.raw.size / 1024 / 1024 > 5) {
     ElMessage.error("圖片大小不能超過 5MB！");
     fileList.pop();
-    return false;
   } else {
-    if (fileList.length >= 2) uploadDisabled.value = true;
+    if (fileList.length >= props.imageLimit) uploadDisabled.value = true;
+
+    isLoading.value = true; // 開始加載
+    try {
+      const [thumbnailUrl, compressedImage] = await Promise.all([
+        generateThumbnail(file.raw),
+        compressImage(file.raw),
+      ]);
+
+      fileList[fileList.length - 1].thumbnailUrl = thumbnailUrl;
+      file.raw = compressedImage;
+    } catch (error) {
+      fileList.pop();
+      ElMessage.error("圖片壓縮失敗!");
+    } finally {
+      isLoading.value = false; // 結束加載
+    }
   }
-  return true;
 };
 
+// 上傳圖片
 const uploadImages = async () => {
   const originalFileNames = new Set(
     props.originalImageList.map((file) => file.fileName)
@@ -160,10 +191,10 @@ const uploadImages = async () => {
 
     // 進行圖片刪除
     for (const file of deletedFiles) {
-      await uploadApi.deleteImage(file.fileName)
+      await uploadApi.deleteImage(file.fileName);
     }
 
-    // 生成新的图片列表
+    // 生成新的圖片列表
     const newImageList = [
       ...props.originalImageList.filter((file) => !deletedFiles.includes(file)),
       ...uploadedImages,
@@ -177,10 +208,24 @@ const uploadImages = async () => {
 
 defineExpose({
   uploadImages,
+  setContent,
 });
 </script>
 
 <style>
+.avatar-container {
+  width: 100%;
+}
+
+.el-overlay-dialog {
+  display: flex;
+}
+
+.el-dialog {
+  margin: auto;
+  width: 80%;
+}
+
 .el-dialog__body {
   display: flex;
   justify-content: center;
@@ -195,15 +240,10 @@ defineExpose({
 
 .el-dialog__headerbtn {
   font-size: 1.5rem;
-  position: static;
-  display: flex;
-  width: auto;
-  height: auto;
 }
 
 .el-dialog__body .image {
-  max-width: 70%;
-  max-height: 70%;
+  max-height: 80vh;
   object-fit: contain;
   padding: 1rem;
   box-sizing: border-box;

@@ -66,7 +66,7 @@ const save = async () => {
           message: "儲存成功",
         });
       } catch (error) {
-        ElMessage.error("儲存失敗: " + error.message);
+        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
     } else {
       ElMessage({
@@ -82,7 +82,7 @@ const fetchIngredient = async () => {
     const res = await ingredientApi.fetchIngredient(props.id);
     Object.assign(model, res.data);
   } catch (error) {
-    ElMessage.error("獲取配料資料失敗: " + error.message);
+    ElMessage.error(`獲取配料資料失敗: ${error.errorMessage}`);
   }
 };
 

@@ -13,7 +13,7 @@
         <el-input v-model="model.name"></el-input>
       </el-form-item>
       <el-form-item label="電話" prop="phone">
-        <el-input v-model="model.phone" placeholder="手機或是市話"></el-input>
+        <el-input v-model="model.phone" placeholder="手機或市話"></el-input>
       </el-form-item>
       <el-form-item label="縣市" prop="city">
         <el-select
@@ -127,7 +127,7 @@ const save = async () => {
           message: "儲存成功",
         });
       } catch (error) {
-        ElMessage.error("儲存失敗: " + error.message);
+        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
     } else {
       ElMessage({
@@ -143,7 +143,7 @@ const fetchShop = async () => {
     const res = await shopApi.fetchShop(props.id);
     Object.assign(model, res.data);
   } catch (error) {
-    ElMessage.error("獲取門市資料失敗: " + error.message);
+    ElMessage.error(`獲取門市資料失敗: ${error.errorMessage}`);
   }
 };
 

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const UploadService = require("../services/uploadService");
 
 const schema = new mongoose.Schema({
   name: {
@@ -31,5 +32,19 @@ const schema = new mongoose.Schema({
   introduction: { type: String },
   alert: { type: String },
 }, { timestamps: true });
+
+schema.pre('deleteOne', { document: true, query: false }, async function() {
+  try {
+    if (this.images && this.images.length > 0) {
+      const deletePromises = this.images.map(image => 
+        UploadService.deleteImage(image.fileName)
+      );
+      
+      await Promise.all(deletePromises);
+    }
+  } catch (error) {
+    throw new Error(`圖片刪除失敗`);
+  }
+});
 
 module.exports = mongoose.model("Drink", schema);

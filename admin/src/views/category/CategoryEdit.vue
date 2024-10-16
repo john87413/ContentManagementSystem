@@ -74,7 +74,7 @@ const fetchCategory = async () => {
     const res = await categoryApi.fetchCategory(props.id);
     Object.assign(model, res.data);
   } catch (error) {
-    ElMessage.error("獲取類別資料失敗: " + error.message);
+    ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);
   }
 };
 
@@ -84,7 +84,7 @@ const fetchParents = async () => {
     parents.length = 0;
     parents.push(...res.data.filter((c) => c._id !== props.id));
   } catch (error) {
-    ElMessage.error("獲取上級類別資料失敗: " + error.message);
+    ElMessage.error(`獲取上級類別資料失敗: ${error.errorMessage}`);
   }
 };
 

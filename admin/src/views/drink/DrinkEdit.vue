@@ -2,8 +2,8 @@
   <div>
     <h1>{{ id ? "編輯" : "新建" }}飲品</h1>
     <el-form
-      v-loading="loading"
-      element-loading-text="處理中..."
+      v-loading="loadingStore.isLoading"
+      :element-loading-text="loadingStore.loadingText"
       ref="formRef"
       :model="model"
       :rules="rules"
@@ -34,9 +34,10 @@
             </el-select>
           </el-form-item>
           <el-form-item label="上傳圖片">
-            <UploadComponent
+            <ImageUpload
               ref="uploaderRef"
               :originalImageList="model.images"
+              :imageLimit="2"
             />
           </el-form-item>
           <el-form-item label="冷熱飲" prop="hotCold">
@@ -62,7 +63,7 @@
             <el-input-number
               v-model="model.kal"
               :precision="1"
-              :step="10"
+              :step="1"
               :max="1000"
             />
           </el-form-item>
@@ -103,10 +104,11 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
-import UploadComponent from "@/components/UploadComponent.vue";
+import ImageUpload from "@/components/ImageUpload.vue";
 
 import drinkApi from "@/api/drinkApi";
 import categoryApi from "@/api/categoryApi";
+import { useLoadingStore } from "@/stores/LoadingStore";
 
 // props
 const props = defineProps({
@@ -148,9 +150,12 @@ const rules = {
   kal: { required: true, message: "請輸入中杯熱量", trigger: "blur" },
 };
 
+// Loading store
+const loadingStore = useLoadingStore();
+
 // methods
 const save = async () => {
-  loading.value = true;
+  loadingStore.showLoading("儲存中...");
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
@@ -161,15 +166,16 @@ const save = async () => {
         } else {
           await drinkApi.createDrink(model);
         }
-        loading.value = false;
 
+        loadingStore.hideLoading();
         router.push("/drinks/list");
+
         ElMessage({
           type: "success",
           message: "儲存成功",
         });
       } catch (error) {
-        ElMessage.error("儲存失敗: " + error.errorMessage);
+        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
     } else {
       ElMessage({
@@ -178,7 +184,7 @@ const save = async () => {
       });
     }
   });
-  loading.value = false;
+  loadingStore.hideLoading();
 };
 
 const uploadImage = async () => {
@@ -186,7 +192,7 @@ const uploadImage = async () => {
     const result = await uploaderRef.value.uploadImages();
     model.images = [...result];
   } catch (error) {
-    ElMessage.error("圖片上傳失敗: " + error.message);
+    ElMessage.error(`圖片上傳失敗: ${error.errorMessage}`);
   }
 };
 
@@ -194,8 +200,10 @@ const fetchDrink = async () => {
   try {
     const res = await drinkApi.fetchDrink(props.id);
     Object.assign(model, res.data);
+
+    uploaderRef.value && uploaderRef.value.setContent(model.images);
   } catch (error) {
-    ElMessage.error("獲取資料失敗: " + error.message);
+    ElMessage.error(`獲取資料失敗: ${error.errorMessage}`);
   }
 };
 
@@ -203,9 +211,9 @@ const fetchCategories = async () => {
   try {
     const res = await categoryApi.fetchCategories();
     categories.length = 0;
-    categories.push(...res.data.filter((c) => c._id !== props.id));
+    categories.push(...res.data);
   } catch (error) {
-    ElMessage.error("獲取資料失敗: " + error.message);
+    ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);
   }
 };
 
@@ -214,9 +222,9 @@ const cancel = () => {
 };
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.showLoading("處理中...");
   await fetchCategories();
   props.id && (await fetchDrink());
-  loading.value = false;
+  loadingStore.hideLoading();
 });
 </script>

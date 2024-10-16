@@ -1,51 +1,52 @@
 const { v4: uuidv4 } = require('uuid');
-const tinify = require("tinify");
+// const tinify = require("tinify");
 const firebaseAdmin = require('../config/firebase');
 
-tinify.key = process.env.TINYPNG_API_KEY;
+// tinify.key = process.env.TINYPNG_API_KEY;
 const bucket = firebaseAdmin.storage().bucket();
 
-module.exports = {
+class UploadService {
+  constructor() {
+    this.bucket = bucket;
+    // this.tinify = tinify;
+  }
 
-    // 壓縮圖片並上傳到 Firebase
-    uploadImages: async (files) => {
-        const uploadResults = [];
+  // 壓縮圖片並上傳到 Firebase
+  uploadImages = async (files) => {
+    const uploadPromises = files.map(async (file) => {
+      const fileName = `${uuidv4()}.${file.originalname.split('.').pop()}`;
+      // const compressedImage = await this.tinify.fromBuffer(file.buffer).toBuffer();
+      
+      const blob = this.bucket.file(fileName);
+      const blobStream = blob.createWriteStream();
+      
+      try {
+        await new Promise((resolve, reject) => {
+          blobStream.on('finish', resolve);
+          blobStream.on('error', reject);
+          blobStream.end(file.buffer);
+        });
 
-        for (const file of files) {
-            const fileName = `${uuidv4()}.${file.originalname.split('.').pop()}`;
-            const compressedImage = await tinify.fromBuffer(file.buffer).toBuffer();
+        const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media`;
+        return { fileName, imgUrl };
+      } catch (error) {
+        throw new Error('上傳或取得圖片URL失敗');
+      }
+    });
 
-            const blob = bucket.file(fileName);
-            const blobStream = blob.createWriteStream();
+    return Promise.all(uploadPromises);
+  }
 
-            await new Promise((resolve, reject) => {
-                blobStream.on('finish', async () => {
-                    try {
-                        const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.appspot.com/o/${fileName}?alt=media`
-                        uploadResults.push({ fileName, imgUrl });
-                        resolve();
-                    } catch (err) {
-                        console.error('取得圖片URL時發生錯誤:', err);
-                        reject('取得圖片URL失敗');
-                    }
-                });
+  // 刪除圖片
+  deleteImage = async (fileName) => {
+    try {
+      const blob = this.bucket.file(fileName);
+      await blob.delete();
+      return '刪除成功';
+    } catch (error) {
+      throw new Error('刪除圖片失敗');
+    }
+  }
+}
 
-                blobStream.on('error', (err) => {
-                    console.error('上傳圖片時發生錯誤:', err);
-                    reject('上傳失敗');
-                });
-
-                blobStream.end(compressedImage);
-            });
-        }
-
-        return uploadResults;
-    },
-
-    // 刪除圖片
-    deleteImage: async (fileName) => {
-        const blob = bucket.file(fileName);
-        await blob.delete();
-        return '刪除成功';
-    },
-};
+module.exports = new UploadService();
