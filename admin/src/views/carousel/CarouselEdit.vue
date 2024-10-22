@@ -26,10 +26,7 @@
               trigger: 'blur',
             }"
           >
-            <el-select
-              v-model="item.article"
-              @change="handleArticleChange(i)"
-            >
+            <el-select v-model="item.article" @change="handleArticleChange(i)">
               <el-option
                 v-for="item in articles"
                 :key="item._id"
@@ -98,7 +95,10 @@ const deleteArticle = (index) => {
 };
 
 const hasDuplicates = () => {
-  const ids = model.articles.map((item) => item.article);
+  const ids = model.articles
+    .map((item) => item.article)
+    .filter((id) => id !== "" && id !== null);
+  console.log(ids);
   return new Set(ids).size !== ids.length;
 };
 

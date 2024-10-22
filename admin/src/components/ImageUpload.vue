@@ -83,7 +83,7 @@ const setContent = (newVal) => {
   if (newVal && imageList.value.length === 0) {
     imageList.value = newVal.map((file) => ({
       name: file.fileName,
-      url: file.imgUrl,
+      url: import.meta.env.VITE_API_URL + file.imgUrl,
       expiresAt: file.expiresAt,
     }));
     if (imageList.value.length >= props.imageLimit) {

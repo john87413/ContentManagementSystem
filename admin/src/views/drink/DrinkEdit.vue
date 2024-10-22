@@ -119,7 +119,6 @@ const props = defineProps({
 const router = useRouter();
 
 // form
-const loading = ref(true);
 const formRef = ref(null);
 const uploaderRef = ref(null);
 const activeTab = ref("basic");

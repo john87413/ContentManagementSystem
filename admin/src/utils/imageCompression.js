@@ -50,7 +50,6 @@ export const compressImage = async (file, options = {}) => {
 
         return compressedFile;
     } catch (error) {
-        console.error("圖片壓縮失敗:", error);
         throw error;
     }
 };

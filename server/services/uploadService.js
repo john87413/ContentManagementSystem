@@ -1,50 +1,76 @@
+const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
-// const tinify = require("tinify");
-const firebaseAdmin = require('../config/firebase');
-
-// tinify.key = process.env.TINYPNG_API_KEY;
-const bucket = firebaseAdmin.storage().bucket();
 
 class UploadService {
   constructor() {
-    this.bucket = bucket;
-    // this.tinify = tinify;
+    mongoose.connection.once('open', () => {
+      this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+        bucketName: 'uploads'
+      });
+    });
   }
 
-  // 壓縮圖片並上傳到 Firebase
-  uploadImages = async (files) => {
+  async uploadImages(files) {
     const uploadPromises = files.map(async (file) => {
-      const fileName = `${uuidv4()}.${file.originalname.split('.').pop()}`;
-      // const compressedImage = await this.tinify.fromBuffer(file.buffer).toBuffer();
-      
-      const blob = this.bucket.file(fileName);
-      const blobStream = blob.createWriteStream();
-      
+      const fileExt = file.originalname.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+
       try {
-        await new Promise((resolve, reject) => {
-          blobStream.on('finish', resolve);
-          blobStream.on('error', reject);
-          blobStream.end(file.buffer);
+        // Create upload stream
+        const uploadStream = this.bucket.openUploadStream(fileName, {
+          contentType: file.mimetype,
+          metadata: {
+            originalName: file.originalname,
+            uploadDate: new Date()
+          }
         });
 
-        const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media`;
+        // Upload file
+        await new Promise((resolve, reject) => {
+          uploadStream.on('error', reject);
+          uploadStream.on('finish', resolve);
+          uploadStream.end(file.buffer);
+        });
+
+        // Generate URL (you'll need to adjust this based on your API setup)
+        const imgUrl = `/upload/images/${fileName}`;
         return { fileName, imgUrl };
       } catch (error) {
-        throw new Error('上傳或取得圖片URL失敗');
+        throw new Error(`上傳圖片失敗: ${error.message}`);
       }
     });
 
     return Promise.all(uploadPromises);
   }
 
-  // 刪除圖片
-  deleteImage = async (fileName) => {
+  async deleteImage(fileName) {
     try {
-      const blob = this.bucket.file(fileName);
-      await blob.delete();
+      const file = await this.bucket.find({ filename: fileName }).toArray();
+      if (!file.length) {
+        throw new Error('找不到圖片');
+      }
+
+      await this.bucket.delete(file[0]._id);
       return '刪除成功';
     } catch (error) {
-      throw new Error('刪除圖片失敗');
+      throw new Error(`刪除圖片失敗: ${error.message}`);
+    }
+  }
+
+  // New method to stream image
+  async getImage(fileName) {
+    try {
+      // 先檢查文件是否存在
+      const files = await this.bucket.find({ filename: fileName }).toArray();
+      if (!files.length) {
+        throw new Error('找不到圖片');
+      }
+
+      // 返回圖片stream
+      const downloadStream = this.bucket.openDownloadStreamByName(fileName);
+      return downloadStream;
+    } catch (error) {
+      throw new Error(`取得圖片失敗: ${error.message}`);
     }
   }
 }

@@ -99,11 +99,11 @@ const deleteItem = async (item) => {
     await props.deleteItemApi(item._id);
     ElMessage.success("刪除成功");
     await fetchData(currentPage.value, pageSize.value);
-    loadingStore.hideLoading();
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error(`刪除失敗: ${error.errorMessage}`);
     }
+  } finally {
     loadingStore.hideLoading();
   }
 };
