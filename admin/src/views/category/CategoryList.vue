@@ -10,9 +10,22 @@
     itemsKey="categories"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="name" label="分類名稱"></el-table-column>
-      <el-table-column prop="parent.name" label="上級分類"></el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="name"
+        label="分類名稱"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="parent.name"
+        label="上級分類"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -25,8 +38,8 @@
 import GenericList from "@/components/GenericList.vue";
 import categoryApi from "@/api/categoryApi";
 
-const fetchCategories = async (page, limit, nameQuery) => {
-  return await categoryApi.fetchCategories(page, limit, nameQuery);
+const fetchCategories = async (page, limit, nameQuery, sortField, sortOrder) => {
+  return await categoryApi.fetchCategories(page, limit, nameQuery, sortField, sortOrder);
 };
 
 const beforeDeleteCategory = (category) => {

@@ -10,10 +10,27 @@
     itemsKey="shops"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="name" label="門市名稱"></el-table-column>
-      <el-table-column prop="city" label="縣市"></el-table-column>
-      <el-table-column prop="district" label="區域"></el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="name"
+        label="門市名稱"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="city"
+        label="縣市"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="district"
+        label="區域"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -26,8 +43,8 @@
 import GenericList from "@/components/GenericList.vue";
 import shopApi from "@/api/shopApi";
 
-const fetchShops = async (page, limit, nameQuery) => {
-  return await shopApi.fetchShops(page, limit, nameQuery);
+const fetchShops = async (page, limit, nameQuery, sortField, sortOrder) => {
+  return await shopApi.fetchShops(page, limit, nameQuery, sortField, sortOrder);
 };
 
 const beforeDeleteShop = (shop) => {

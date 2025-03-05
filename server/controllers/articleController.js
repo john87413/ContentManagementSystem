@@ -19,7 +19,7 @@ class ArticleController {
   // 取得文章列表
   getArticles = async (req, res, next) => {
     try {
-      const { page, limit, nameQuery = "" } = req.query;
+      const { page, limit, nameQuery = "", sortField = "", sortOrder = "" } = req.query;
 
       // 如果有提供分頁參數
       if (page && limit) {
@@ -27,6 +27,13 @@ class ArticleController {
           skip: (parseInt(page) - 1) * parseInt(limit),
           limit: parseInt(limit),
         };
+        
+        // 添加排序選項
+        if (sortField && sortOrder) {
+          const sortDirection = sortOrder === 'desc' ? -1 : 1;
+          options.sort = { [sortField]: sortDirection };
+        }
+
         // 建立搜尋條件
         const query = nameQuery ? { name: new RegExp(nameQuery, 'i') } : {};
 

@@ -2,12 +2,13 @@
   <div>
     <h1>{{ id ? "編輯" : "新建" }}輪播圖</h1>
     <el-form
+      v-loading="loadingStore.isLoading"
+      :element-loading-text="loadingStore.loadingText"
       ref="formRef"
-      :rules="rules"
       :model="model"
+      :rules="rules"
       label-width="70px"
       @submit.prevent="save"
-      v-loading="loading"
     >
       <el-form-item label="名稱" prop="name">
         <el-input v-model="model.name"></el-input>
@@ -66,6 +67,7 @@ import { ref, reactive, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 
+import { useLoadingStore } from "@/stores/LoadingStore";
 import carouselApi from "@/api/carouselApi";
 import articleApi from "@/api/articleApi";
 
@@ -74,9 +76,11 @@ const props = defineProps({
 });
 
 const router = useRouter();
+
+const loadingStore = useLoadingStore();
+
 const model = reactive({ name: "", articles: [] });
 const articles = reactive([]);
-const loading = ref(false);
 const formRef = ref(null);
 const rules = {
   name: [{ required: true, message: "名稱不得空白", trigger: "blur" }],
@@ -110,23 +114,29 @@ const handleArticleChange = (index) => {
 };
 
 const save = async () => {
-  formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        if (props.id) {
-          await carouselApi.updateCarousel(props.id, model);
-        } else {
-          await carouselApi.createCarousel(model);
+  loadingStore.showLoading("儲存中...");
+
+  try {
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          if (props.id) {
+            await carouselApi.updateCarousel(props.id, model);
+          } else {
+            await carouselApi.createCarousel(model);
+          }
+          router.push("/carousels/list");
+          ElMessage({ type: "success", message: "儲存成功" });
+        } catch (error) {
+          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-        router.push("/carousels/list");
-        ElMessage({ type: "success", message: "儲存成功" });
-      } catch (error) {
-        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
+      } else {
+        ElMessage.error("請修正表單中的錯誤");
       }
-    } else {
-      ElMessage.error("請修正表單中的錯誤");
-    }
-  });
+    });
+  } finally {
+    loadingStore.hideLoading();
+  }
 };
 
 const fetchCarousel = async () => {
@@ -153,10 +163,10 @@ const cancel = () => {
 };
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.showLoading("加載中...");
   await fetchArticles();
   props.id && (await fetchCarousel());
-  loading.value = false;
+  loadingStore.hideLoading();
 });
 </script>
 

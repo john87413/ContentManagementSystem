@@ -8,7 +8,7 @@ class BaseService {
         this.model = model;
         this.resourceName = resourceName;
         this.resourcesKey = resourcesKey;
-      }
+    }
 
     // 檢查 ID 是否為有效的 MongoDB ObjectId
     validateId(id) {
@@ -50,20 +50,109 @@ class BaseService {
     // 取得分頁資源列表
     async getWithPagination(options, query) {
         try {
+            // 檢查是否有關聯字段排序
+            if (options.sort && Object.keys(options.sort).some(key => key.includes('.'))) {
+                return await this.handleRelationalSort(options, query);
+            }
+
+            // 常規查詢
             const [resources, total] = await Promise.all([
                 this.model.find(query).setOptions(options),
                 this.model.countDocuments(query)
             ]);
 
-            const result = {
+            return {
                 [this.resourcesKey]: resources,
                 total
             };
-
-            return result;
         } catch (error) {
             throw error;
         }
+    }
+
+    // 處理關聯字段排序
+    async handleRelationalSort(options, query) {
+        // 獲取排序字段和方向
+        const sortField = Object.keys(options.sort)[0];
+        const sortDirection = options.sort[sortField];
+
+        // 解析關聯部分和字段部分
+        const [relation, field] = sortField.split('.');
+
+        // 構建聚合管道
+        const pipeline = [
+            { $match: query }, // 應用過濾條件
+
+            // 查找關聯文檔
+            {
+                $lookup: {
+                    from: this.getCollectionName(relation),
+                    localField: relation,
+                    foreignField: '_id',
+                    as: `${relation}`
+                }
+            },
+
+            // 處理關聯數據，確保字段存在
+            // 如果關聯字段是空數組，則設置為 [null]，這樣後面 unwind 後會變成 null
+            {
+                $addFields: {
+                    [relation]: {
+                        $cond: {
+                            if: { $eq: [{ $size: `$${relation}` }, 0] },
+                            then: [null],
+                            else: `$${relation}`
+                        }
+                    }
+                }
+            },
+
+            // 展開關聯文檔數組 (保留沒有關聯的文檔)
+            {
+                $unwind: {
+                    path: `$${relation}`,
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+
+            // 按關聯字段排序
+            {
+                $sort: {
+                    [`${relation}.${field}`]: sortDirection,
+                    _id: 1 // 次要排序字段，保持穩定
+                }
+            },
+
+            // 應用分頁
+            { $skip: options.skip || 0 },
+            { $limit: options.limit || 10 }
+        ];
+
+        // 執行聚合查詢
+        const [resources, totalCount] = await Promise.all([
+            this.model.aggregate(pipeline),
+            this.model.countDocuments(query)
+        ]);
+
+        return {
+            [this.resourcesKey]: resources,
+            total: totalCount
+        };
+    }
+
+    // 根據關聯字段名獲取集合名稱
+    getCollectionName(relation) {
+        // 獲取關聯字段的引用模型
+        const schemaPath = this.model.schema.path(relation);
+
+        if (schemaPath && schemaPath.options && schemaPath.options.ref) {
+            // 如果有明確的 ref 選項，獲取引用的模型
+            const refModel = mongoose.model(schemaPath.options.ref);
+            return refModel.collection.name;
+        }
+
+        // 如果無法確定，返回默認推測的集合名稱
+        return `${relation.toLowerCase()}s`;
     }
 
     // 取得所有資源
@@ -76,17 +165,15 @@ class BaseService {
     }
 
     // 依據ID取得特定資源
-    async getById(id, options = {}) {
+    async getById(id) {
         try {
             // 檢查ID格式
             this.validateId(id);
 
-            // 建立查詢並應用選項
-            const query = this.model.findById(id);
-            this.applyQueryOptions(query, options);
+            // 查找資源
+            const resource = await this.model.findById(id);
 
-            // 執行查詢並檢查資源是否存在
-            const resource = await query;
+            // 檢查資源是否存在
             this.validateResourceExists(resource, id);
 
             return resource;

@@ -22,6 +22,7 @@
       :data="items"
       v-loading="loadingStore.isLoading"
       :element-loading-text="loadingStore.loadingText"
+      @sort-change="handleSortChange"
     >
       <slot name="table-columns" :formatDate="formatDate"></slot>
       <el-table-column fixed="right" label="操作" width="200">
@@ -72,12 +73,23 @@ const pageSize = ref(10);
 const searchForm = ref({
   name: "",
 });
+const sortParams = ref({
+  prop: "",
+  order: "",
+});
 const loadingStore = useLoadingStore();
 
 const fetchData = async (page = 1, limit = 10, nameQuery = "") => {
   try {
     loadingStore.showLoading("加載中...");
-    const res = await props.fetchItemsApi(page, limit, nameQuery);
+    const res = await props.fetchItemsApi(
+      page,
+      limit,
+      nameQuery,
+      sortParams.value.prop,
+      sortParams.value.order
+    );
+    console.log(res.data[props.itemsKey]);
     items.value = res.data[props.itemsKey];
     totalItems.value = res.data.total;
   } catch (error) {
@@ -98,10 +110,11 @@ const deleteItem = async (item) => {
       cancelButtonText: "取消",
       type: "warning",
     });
+
     loadingStore.showLoading("處理中...");
     await props.deleteItemApi(item._id);
     ElMessage.success("刪除成功");
-    await fetchData(currentPage.value, pageSize.value);
+    await fetchData(currentPage.value, pageSize.value, searchForm.value.name);
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error(`刪除失敗: ${error.errorMessage}`);
@@ -125,6 +138,14 @@ const clearSearch = () => {
   searchForm.value.name = "";
   currentPage.value = 1;
   fetchData(currentPage.value, pageSize.value);
+};
+
+const handleSortChange = ({ prop, order }) => {
+  sortParams.value.prop = prop;
+  sortParams.value.order =
+    order === "ascending" ? "asc" : order === "descending" ? "desc" : "";
+
+  fetchData(currentPage.value, pageSize.value, searchForm.value.name);
 };
 
 const formatDate = (date) => {

@@ -10,8 +10,17 @@
     itemsKey="carousels"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="name" label="輪播圖名稱"></el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="name"
+        label="輪播圖名稱"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -24,8 +33,14 @@
 import GenericList from "@/components/GenericList.vue";
 import carouselApi from "@/api/carouselApi";
 
-const fetchCarousels = async (page, limit, nameQuery) => {
-  return await carouselApi.fetchCarousels(page, limit, nameQuery);
+const fetchCarousels = async (page, limit, nameQuery, sortField, sortOrder) => {
+  return await carouselApi.fetchCarousels(
+    page,
+    limit,
+    nameQuery,
+    sortField,
+    sortOrder
+  );
 };
 
 const beforeDeleteCarousel = (carousel) => {

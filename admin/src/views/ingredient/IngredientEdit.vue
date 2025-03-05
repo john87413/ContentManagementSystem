@@ -2,10 +2,12 @@
   <div>
     <h1>{{ id ? "編輯" : "新建" }}配料</h1>
     <el-form
-      v-loading="loading"
+      v-loading="loadingStore.isLoading"
+      :element-loading-text="loadingStore.loadingText"
       ref="formRef"
       :model="model"
       :rules="rules"
+      style="max-width: 500px"
       label-width="70px"
       @submit.prevent="save"
     >
@@ -32,6 +34,8 @@
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+
+import { useLoadingStore } from "@/stores/LoadingStore";
 import ingredientApi from "@/api/ingredientApi";
 
 const props = defineProps({
@@ -39,7 +43,9 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const loading = ref(true);
+
+const loadingStore = useLoadingStore();
+
 const formRef = ref(null);
 const model = reactive({
   name: "",
@@ -51,29 +57,35 @@ const rules = {
 };
 
 const save = async () => {
-  formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        if (props.id) {
-          await ingredientApi.updateIngredient(props.id, model);
-        } else {
-          await ingredientApi.createIngredient(model);
+  loadingStore.showLoading("儲存中...");
+
+  try {
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          if (props.id) {
+            await ingredientApi.updateIngredient(props.id, model);
+          } else {
+            await ingredientApi.createIngredient(model);
+          }
+          router.push("/ingredients/list");
+          ElMessage({
+            type: "success",
+            message: "儲存成功",
+          });
+        } catch (error) {
+          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-        router.push("/ingredients/list");
+      } else {
         ElMessage({
-          type: "success",
-          message: "儲存成功",
+          type: "warning",
+          message: "請依照指示完成表單",
         });
-      } catch (error) {
-        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
-    } else {
-      ElMessage({
-        type: "warning",
-        message: "請依照指示完成表單",
-      });
-    }
-  });
+    });
+  } finally {
+    loadingStore.hideLoading();
+  }
 };
 
 const fetchIngredient = async () => {
@@ -90,10 +102,10 @@ const cancel = () => {
 };
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.showLoading("載入中...");
   if (props.id) {
     await fetchIngredient();
   }
-  loading.value = false;
+  loadingStore.hideLoading();
 });
 </script>

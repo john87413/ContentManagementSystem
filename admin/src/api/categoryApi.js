@@ -1,10 +1,12 @@
 import axios from "@/api/axios";
 
-const fetchCategories = (page, limit, nameQuery = "") => {
+const fetchCategories = (page, limit, nameQuery = "", sortField = "", sortOrder = "") => {
   const params = {
-    page,
-    limit,
-    nameQuery,
+      page,
+      limit,
+      nameQuery,
+      sortField,
+      sortOrder
   };
   return axios.get("/rest/categories", { params });
 };

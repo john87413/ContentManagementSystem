@@ -10,8 +10,16 @@
     itemsKey="drinks"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="name" label="飲品名稱"></el-table-column>
-      <el-table-column prop="price" label="價格"></el-table-column>
+      <el-table-column
+        prop="name"
+        label="飲品名稱"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="price"
+        label="價格"
+        sortable="custom"
+      ></el-table-column>
       <el-table-column prop="image" label="圖片">
         <template #default="{ row }">
           <img
@@ -20,7 +28,12 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -33,8 +46,14 @@
 import GenericList from "@/components/GenericList.vue";
 import drinkApi from "@/api/drinkApi";
 
-const fetchDrinks = async (page, limit, nameQuery) => {
-  return await drinkApi.fetchDrinks(page, limit, nameQuery);
+const fetchDrinks = async (page, limit, nameQuery, sortField, sortOrder) => {
+  return await drinkApi.fetchDrinks(
+    page,
+    limit,
+    nameQuery,
+    sortField,
+    sortOrder
+  );
 };
 
 const beforeDeleteDrink = (drink) => {

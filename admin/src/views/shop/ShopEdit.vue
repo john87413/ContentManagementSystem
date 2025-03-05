@@ -2,12 +2,14 @@
   <div>
     <h1>{{ id ? "編輯" : "新建" }}門市</h1>
     <el-form
-      v-loading="loading"
+      v-loading="loadingStore.isLoading"
+      :element-loading-text="loadingStore.loadingText"
       ref="formRef"
       :model="model"
+      :rules="rules"
+      style="max-width: 500px"
       label-width="70px"
       @submit.prevent="save"
-      :rules="rules"
     >
       <el-form-item label="名稱" prop="name">
         <el-input v-model="model.name"></el-input>
@@ -55,6 +57,8 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+
+import { useLoadingStore } from "@/stores/LoadingStore";
 import cityData from "../../assets/CityCountyData.json";
 import shopApi from "@/api/shopApi";
 
@@ -63,9 +67,10 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const loading = ref(true);
-const formRef = ref(null);
 
+const loadingStore = useLoadingStore();
+
+const formRef = ref(null);
 const model = reactive({
   name: "",
   phone: "",
@@ -73,7 +78,6 @@ const model = reactive({
   district: null,
   address: "",
 });
-
 const rules = {
   name: { required: true, message: "請輸入門市名稱", trigger: "blur" },
   phone: [
@@ -102,7 +106,6 @@ const rules = {
 };
 
 const cities = computed(() => cityData.map((item) => item.CityName));
-
 const districts = computed(() => {
   const cityItem = cityData.find((item) => item.CityName === model.city);
   return cityItem ? cityItem.AreaList : [];
@@ -113,29 +116,35 @@ const cityChange = () => {
 };
 
 const save = async () => {
-  formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        if (props.id) {
-          await shopApi.updateShop(props.id, model);
-        } else {
-          await shopApi.createShop(model);
+  loadingStore.showLoading("儲存中...");
+
+  try {
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          if (props.id) {
+            await shopApi.updateShop(props.id, model);
+          } else {
+            await shopApi.createShop(model);
+          }
+          router.push("/shops/list");
+          ElMessage({
+            type: "success",
+            message: "儲存成功",
+          });
+        } catch (error) {
+          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-        router.push("/shops/list");
+      } else {
         ElMessage({
-          type: "success",
-          message: "儲存成功",
+          type: "warning",
+          message: "請依照指示完成表單",
         });
-      } catch (error) {
-        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
-    } else {
-      ElMessage({
-        type: "warning",
-        message: "請依照指示完成表單",
-      });
-    }
-  });
+    });
+  } finally {
+    loadingStore.hideLoading();
+  }
 };
 
 const fetchShop = async () => {
@@ -152,10 +161,10 @@ const cancel = () => {
 };
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.showLoading("載入中...");
   if (props.id) {
     await fetchShop();
   }
-  loading.value = false;
+  loadingStore.hideLoading();
 });
 </script>

@@ -10,9 +10,22 @@
     itemsKey="ingredients"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="name" label="配料名稱"></el-table-column>
-      <el-table-column prop="price" label="價格"></el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="name"
+        label="配料名稱"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="price"
+        label="價格"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -25,8 +38,20 @@
 import GenericList from "@/components/GenericList.vue";
 import ingredientApi from "@/api/ingredientApi";
 
-const fetchIngredients = async (page, limit, nameQuery) => {
-  return await ingredientApi.fetchIngredients(page, limit, nameQuery);
+const fetchIngredients = async (
+  page,
+  limit,
+  nameQuery,
+  sortField,
+  sortOrder
+) => {
+  return await ingredientApi.fetchIngredients(
+    page,
+    limit,
+    nameQuery,
+    sortField,
+    sortOrder
+  );
 };
 
 const beforeDeleteIngredient = (ingredient) => {

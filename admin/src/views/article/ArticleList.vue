@@ -10,8 +10,17 @@
     itemsKey="articles"
   >
     <template #table-columns="{ formatDate }">
-      <el-table-column prop="title" label="文章標題"></el-table-column>
-      <el-table-column prop="updatedAt" label="更新時間" width="220">
+      <el-table-column
+        prop="title"
+        label="文章標題"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column
+        prop="updatedAt"
+        label="更新時間"
+        width="220"
+        sortable="custom"
+      >
         <template #default="{ row }">
           {{ formatDate(row.updatedAt) }}
         </template>
@@ -24,8 +33,14 @@
 import GenericList from "@/components/GenericList.vue";
 import articleApi from "@/api/articleApi";
 
-const fetchArticles = async (page, limit, nameQuery) => {
-  return await articleApi.fetchArticles(page, limit, nameQuery);
+const fetchArticles = async (page, limit, nameQuery, sortField, sortOrder) => {
+  return await articleApi.fetchArticles(
+    page,
+    limit,
+    nameQuery,
+    sortField,
+    sortOrder
+  );
 };
 
 const beforeDeleteArticle = (article) => {

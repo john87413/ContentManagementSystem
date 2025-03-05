@@ -7,6 +7,7 @@
       ref="formRef"
       :model="model"
       :rules="rules"
+      style="max-width: 500px"
       label-width="70px"
       @submit.prevent="save"
     >
@@ -45,11 +46,10 @@
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
-import { useLoadingStore } from "@/stores/LoadingStore";
 
+import { useLoadingStore } from "@/stores/LoadingStore";
 import ImageUpload from "@/components/ImageUpload.vue";
 import QuillEditor from "@/components/QuillEditor.vue";
-
 import articleApi from "@/api/articleApi";
 import categoryApi from "@/api/categoryApi";
 
@@ -60,6 +60,9 @@ const props = defineProps({
 
 // router
 const router = useRouter();
+
+// Loading store
+const loadingStore = useLoadingStore();
 
 // form
 const formRef = ref(null);
@@ -72,53 +75,53 @@ const model = reactive({
   content: "",
   image: null,
 });
-// const rules = {
-//   title: { required: true, message: "請輸入文章標題", trigger: "blur" },
-//   category: { required: true, message: "請輸入文章類型", trigger: "blur" },
-// };
-
-// Loading store
-const loadingStore = useLoadingStore();
+const rules = {
+  title: { required: true, message: "請輸入文章標題", trigger: "blur" },
+  category: { required: true, message: "請輸入文章類型", trigger: "blur" },
+};
 
 // methods
 const save = async () => {
   loadingStore.showLoading("儲存中...");
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        // Run both functions in parallel
-        await Promise.all([
-          uploadImage(),
-          quillEditorRef.value.uploadImageAndReplaceUrl()
-        ]);
 
-        // Get content from Quill editor
-        model.content = quillEditorRef.value.getContent();
+  try {
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          // Run both functions in parallel
+          await Promise.all([
+            uploadImage(),
+            quillEditorRef.value.uploadImageAndReplaceUrl(),
+          ]);
 
-        if (props.id) {
-          await articleApi.updateArticle(props.id, model);
-        } else {
-          await articleApi.createArticle(model);
+          // Get content from Quill editor
+          model.content = quillEditorRef.value.getContent();
+
+          if (props.id) {
+            await articleApi.updateArticle(props.id, model);
+          } else {
+            await articleApi.createArticle(model);
+          }
+
+          router.push("/articles/list");
+
+          ElMessage({
+            type: "success",
+            message: "儲存成功",
+          });
+        } catch (error) {
+          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-
-        loadingStore.hideLoading();
-        router.push("/articles/list");
-
+      } else {
         ElMessage({
-          type: "success",
-          message: "儲存成功",
+          type: "warning",
+          message: "請依照指示完成表單",
         });
-      } catch (error) {
-        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
       }
-    } else {
-      ElMessage({
-        type: "warning",
-        message: "請依照指示完成表單",
-      });
-    }
-  });
-  loadingStore.hideLoading();
+    });
+  } finally {
+    loadingStore.hideLoading();
+  }
 };
 
 const uploadImage = async () => {
@@ -136,7 +139,8 @@ const fetchArticle = async () => {
     Object.assign(model, res.data);
 
     quillEditorRef.value && quillEditorRef.value.setContent(model.content);
-    uploaderRef.value && uploaderRef.value.setContent(model.image ? [model.image] : []);
+    uploaderRef.value &&
+      uploaderRef.value.setContent(model.image ? [model.image] : []);
   } catch (error) {
     ElMessage.error(`獲取資料失敗: ${error.errorMessage}`);
   }
