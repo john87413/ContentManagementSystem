@@ -24,7 +24,10 @@ class CategoryController {
       // 如果有提供分頁參數
       if (page && limit) {
         const options = {
-          populate: { path: "parent" }, // 關聯父分類資料
+          populate: {
+            path: "parent",
+            select: "name _id"
+          }, // 關聯父分類資料
           skip: (parseInt(page) - 1) * parseInt(limit),
           limit: parseInt(limit),
         };

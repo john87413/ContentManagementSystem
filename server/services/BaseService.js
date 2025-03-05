@@ -50,8 +50,18 @@ class BaseService {
     // 取得分頁資源列表
     async getWithPagination(options, query) {
         try {
+            // 提取 selectFields 選項（如果有的話）
+            const selectFields = options.populate &&
+                options.populate.select ?
+                options.populate.select.split(/\s+/) :
+                null;
+
             // 檢查是否有關聯字段排序
             if (options.sort && Object.keys(options.sort).some(key => key.includes('.'))) {
+                // 將 selectFields 傳給 handleRelationalSort
+                if (selectFields) {
+                    options.selectFields = selectFields;
+                }
                 return await this.handleRelationalSort(options, query);
             }
 
@@ -89,7 +99,22 @@ class BaseService {
                     from: this.getCollectionName(relation),
                     localField: relation,
                     foreignField: '_id',
-                    as: `${relation}`
+                    as: `${relation}`,
+                    // 如果有設置 selectFields，就只選取指定的字段(一定包含排序字段)
+                    ...(options.selectFields && {
+                        pipeline: [
+                            {
+                                $project: {
+                                    _id: 1,  // 始終包含 _id
+                                    [field]: 1,  // 確保包含需要排序的字段
+                                    ...(options.selectFields.reduce((acc, field) => {
+                                        acc[field] = 1;
+                                        return acc;
+                                    }, {}))
+                                }
+                            }
+                        ]
+                    })
                 }
             },
 
