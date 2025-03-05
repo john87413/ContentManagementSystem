@@ -1,5 +1,4 @@
 const shopService = require("../services/shopService");
-const { AppError } = require('../errors/AppError');
 
 class ShopController {
   constructor(shopService) {
@@ -12,9 +11,7 @@ class ShopController {
       const shop = await this.shopService.createShop(req.body);
       res.status(201).json(shop);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('門市建立失敗', 500);
-      }
+      error.operation = error.operation || '門市建立';
       next(error);
     }
   }
@@ -41,9 +38,7 @@ class ShopController {
         res.json(shops);
       }
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('門市列表取得失敗', 500);
-      }
+      error.operation = error.operation || '門市列表取得';
       next(error);
     }
   }
@@ -54,9 +49,7 @@ class ShopController {
       const shop = await this.shopService.getShopById(req.params.id);
       res.json(shop);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('門市取得失敗', 500);
-      }
+      error.operation = error.operation || '門市取得';
       next(error);
     }
   }
@@ -64,16 +57,10 @@ class ShopController {
   // 更新門市資料
   updateShop = async (req, res, next) => {
     try {
-      const shop = await this.shopService.updateShop(
-        req.params.id, // 門市 ID
-        req.body, // 更新內容
-        { new: true, runValidators: true } // 返回更新後的文檔，並執行驗證
-      );
+      const shop = await this.shopService.updateShop(req.params.id, req.body);
       res.json(shop);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('門市更新失敗', 500);
-      }
+      error.operation = error.operation || '門市更新';
       next(error);
     }
   }
@@ -82,11 +69,9 @@ class ShopController {
   deleteShop = async (req, res, next) => {
     try {
       const result = await this.shopService.deleteShop(req.params.id);
-      res.json({ message: 'Shop deleted' });
+      res.json({ message: '門市已刪除' });
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('門市刪除失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }

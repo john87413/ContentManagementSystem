@@ -1,5 +1,4 @@
 const categoryService = require("../services/categoryService");
-const { AppError } = require('../errors/AppError');
 
 class CategoryController {
   constructor(categoryService) {
@@ -12,9 +11,7 @@ class CategoryController {
       const category = await this.categoryService.createCategory(req.body);
       res.status(201).json(category);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('分類建立失敗', 500);
-      }
+      error.operation = error.operation || '分類建立';
       next(error);
     }
   }
@@ -42,9 +39,7 @@ class CategoryController {
         res.json(categories);
       }
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('分類列表取得失敗', 500);
-      }
+      error.operation = error.operation || '分類列表取得';
       next(error);
     }
   }
@@ -55,9 +50,7 @@ class CategoryController {
       const category = await this.categoryService.getCategoryById(req.params.id);
       res.json(category);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('分類取得失敗', 500);
-      }
+      error.operation = error.operation || '分類取得';
       next(error);
     }
   }
@@ -65,16 +58,11 @@ class CategoryController {
   // 更新分類資料
   updateCategory = async (req, res, next) => {
     try {
-      const category = await this.categoryService.updateCategory(
-        req.params.id, // 分類 ID
-        req.body, // 更新內容
-        { new: true, runValidators: true } // 返回更新後的文檔，並執行驗證
-      );
+      const category = await this.categoryService.updateCategory(req.params.id, req.body);
       res.json(category);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('分類更新失敗', 500);
-      }
+      console.log(error);
+      error.operation = error.operation || '分類更新';
       next(error);
     }
   }
@@ -85,9 +73,7 @@ class CategoryController {
       const result = await this.categoryService.deleteCategory(req.params.id);
       res.json({ message: '分類已刪除' });
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('分類刪除失敗', 500);
-      }
+      error.operation = error.operation || '分類刪除';
       next(error);
     }
   }

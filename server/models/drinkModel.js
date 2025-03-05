@@ -34,20 +34,18 @@ const schema = new mongoose.Schema({
   alert: { type: String },
 }, { timestamps: true });
 
-schema.pre('deleteOne', { document: true, query: false }, async function() {
+schema.pre('deleteOne', { document: true, query: false }, async function () {
   try {
     if (this.images && this.images.length > 0) {
-      const deletePromises = this.images.map(image => 
+      const deletePromises = this.images.map(image =>
         UploadService.deleteImage(image.fileName)
       );
-      
+
       await Promise.all(deletePromises);
     }
   } catch (error) {
-    if (error instanceof FileOperationError) {
-      throw error;
-    }
-    throw new FileOperationError('圖片刪除失敗', 'delete');
+    error.operation = '圖片刪除';
+    throw error;
   }
 });
 

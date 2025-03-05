@@ -1,5 +1,5 @@
 const uploadService = require('../services/uploadService');
-const { AppError, ValidationError } = require('../errors/AppError'); // 自訂錯誤類別
+const { ValidationError } = require('../errors/AppError'); // 自訂錯誤類別
 
 class UploadController {
   constructor(uploadService) {
@@ -20,9 +20,7 @@ class UploadController {
       const uploadResults = await this.uploadService.uploadImages(files);
       res.send(uploadResults);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('圖片上傳發生錯誤', 500);
-      }
+      error.operation = error.operation || '圖片上傳';
       next(error);
     }
   }
@@ -41,9 +39,7 @@ class UploadController {
       const result = await this.uploadService.deleteImage(fileName);
       res.send(result);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError(`圖片刪除失敗`, 500);
-      }
+      error.operation = error.operation || '圖片刪除';
       next(error);
     }
   }

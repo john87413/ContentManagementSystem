@@ -45,7 +45,6 @@ const model = reactive({
   name: "",
   price: null,
 });
-
 const rules = {
   name: { required: true, message: "請輸入配料名稱", trigger: "blur" },
   price: { required: true, message: "請輸入配料價格", trigger: "blur" },

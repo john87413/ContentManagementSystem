@@ -76,11 +76,14 @@ const loadingStore = useLoadingStore();
 
 const fetchData = async (page = 1, limit = 10, nameQuery = "") => {
   try {
+    loadingStore.showLoading("加載中...");
     const res = await props.fetchItemsApi(page, limit, nameQuery);
     items.value = res.data[props.itemsKey];
     totalItems.value = res.data.total;
   } catch (error) {
     ElMessage.error(`取得資料失敗: ${error.errorMessage}`);
+  } finally {
+    loadingStore.hideLoading();
   }
 };
 
@@ -138,8 +141,6 @@ const formatDate = (date) => {
 };
 
 onMounted(async () => {
-  loadingStore.showLoading("加載中...");
   await fetchData();
-  loadingStore.hideLoading();
 });
 </script>

@@ -72,10 +72,10 @@ const model = reactive({
   content: "",
   image: null,
 });
-const rules = {
-  title: { required: true, message: "請輸入文章標題", trigger: "blur" },
-  category: { required: true, message: "請輸入文章類型", trigger: "blur" },
-};
+// const rules = {
+//   title: { required: true, message: "請輸入文章標題", trigger: "blur" },
+//   category: { required: true, message: "請輸入文章類型", trigger: "blur" },
+// };
 
 // Loading store
 const loadingStore = useLoadingStore();

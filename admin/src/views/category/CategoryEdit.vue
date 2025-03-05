@@ -11,6 +11,7 @@
     >
       <el-form-item label="上級分類">
         <el-select v-model="model.parent">
+          <el-option label="無 (作為上級分類)" value=""></el-option>
           <el-option
             v-for="item in parents"
             :key="item._id"
@@ -52,11 +53,16 @@ const rules = {
 const save = async () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
+      const formData = { ...model };
+      if (formData.parent === undefined || formData.parent === "") {
+        formData.parent = null;
+      }
+
       try {
         if (props.id) {
-          await categoryApi.updateCategory(props.id, model);
+          await categoryApi.updateCategory(props.id, formData);
         } else {
-          await categoryApi.createCategory(model);
+          await categoryApi.createCategory(formData);
         }
         router.push("/categories/list");
         ElMessage({ type: "success", message: "儲存成功" });
@@ -72,7 +78,9 @@ const save = async () => {
 const fetchCategory = async () => {
   try {
     const res = await categoryApi.fetchCategory(props.id);
-    Object.assign(model, res.data);
+    const categoryData = { ...res.data };
+    categoryData.parent = categoryData.parent || "";
+    Object.assign(model, categoryData);
   } catch (error) {
     ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);
   }

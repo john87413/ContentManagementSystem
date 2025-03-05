@@ -40,7 +40,7 @@ class UploadService {
         const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media`;
         return { fileName, imgUrl };
       } catch (error) {
-        throw new Error('上傳或取得圖片URL失敗');
+        throw error;
       }
     });
 
@@ -62,10 +62,7 @@ class UploadService {
       await blob.delete();
       return '刪除成功';
     } catch (error) {
-      if (error instanceof FileOperationError) {
-        throw error;
-      }
-      throw new FileOperationError('圖片刪除失敗', 'delete');
+      throw error;
     }
   }
 }

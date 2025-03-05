@@ -1,5 +1,4 @@
 const carouselService = require("../services/carouselService");
-const { AppError } = require('../errors/AppError');
 
 class CarouselController {
   constructor(carouselService) {
@@ -12,9 +11,7 @@ class CarouselController {
       const carousel = await this.carouselService.createCarousel(req.body);
       res.status(201).json(carousel);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('輪播圖建立失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }
@@ -41,9 +38,7 @@ class CarouselController {
         res.json(carousels);
       }
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('輪播圖列表取得失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }
@@ -54,9 +49,7 @@ class CarouselController {
       const carousel = await this.carouselService.getCarouselById(req.params.id);
       res.json(carousel);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('輪播圖取得失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }
@@ -64,16 +57,10 @@ class CarouselController {
   // 更新輪播圖資料
   updateCarousel = async (req, res, next) => {
     try {
-      const carousel = await this.carouselService.updateCarousel(
-        req.params.id, // 輪播圖 ID
-        req.body, // 更新內容
-        { new: true, runValidators: true } // 返回更新後的文檔，並執行驗證
-      );
+      const carousel = await this.carouselService.updateCarousel(req.params.id, req.body);
       res.json(carousel);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('輪播圖更新失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }
@@ -82,11 +69,9 @@ class CarouselController {
   deleteCarousel = async (req, res, next) => {
     try {
       const result = await this.carouselService.deleteCarousel(req.params.id);
-      res.json({ message: 'Carousel deleted' });
+      res.json({ message: '輪播圖已刪除' });
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('輪播圖刪除失敗', 500);
-      }
+      error.operation = error.operation || '門市刪除';
       next(error);
     }
   }

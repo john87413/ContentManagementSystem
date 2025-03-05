@@ -1,5 +1,4 @@
 const ingredientService = require("../services/ingredientService");
-const { AppError } = require('../errors/AppError');
 
 class IngredientController {
   constructor(ingredientService) {
@@ -12,9 +11,7 @@ class IngredientController {
       const ingredient = await this.ingredientService.createIngredient(req.body);
       res.status(201).json(ingredient);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('配料建立失敗', 500);
-      }
+      error.operation = error.operation || '配料建立';
       next(error);
     }
   }
@@ -41,9 +38,7 @@ class IngredientController {
         res.json(ingredients);
       }
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('配料列表取得失敗', 500);
-      }
+      error.operation = error.operation || '配料列表取得';
       next(error);
     }
   }
@@ -54,9 +49,7 @@ class IngredientController {
       const ingredient = await this.ingredientService.getIngredientById(req.params.id);
       res.json(ingredient);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('配料取得失敗', 500);
-      }
+      error.operation = error.operation || '配料取得';
       next(error);
     }
   }
@@ -64,16 +57,10 @@ class IngredientController {
   // 更新配料資料
   updateIngredient = async (req, res, next) => {
     try {
-      const ingredient = await this.ingredientService.updateIngredient(
-        req.params.id, // 配料 ID
-        req.body, // 更新內容
-        { new: true, runValidators: true } // 返回更新後的文檔，並執行驗證
-      );
+      const ingredient = await this.ingredientService.updateIngredient(req.params.id, req.body);
       res.json(ingredient);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('配料更新失敗', 500);
-      }
+      error.operation = error.operation || '配料更新';
       next(error);
     }
   }
@@ -82,11 +69,9 @@ class IngredientController {
   deleteIngredient = async (req, res, next) => {
     try {
       const result = await this.ingredientService.deleteIngredient(req.params.id);
-      res.json({ message: 'Ingredient deleted' });
+      res.json({ message: '配料已刪除' });
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('配料刪除失敗', 500);
-      }
+      error.operation = error.operation || '配料刪除';
       next(error);
     }
   }

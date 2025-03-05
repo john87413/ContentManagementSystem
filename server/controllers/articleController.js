@@ -1,5 +1,4 @@
 const articleService = require("../services/articleService");
-const { AppError } = require('../errors/AppError');
 
 class ArticleController {
   constructor(articleService) {
@@ -12,9 +11,7 @@ class ArticleController {
       const article = await this.articleService.createArticle(req.body);
       res.status(201).json(article);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('文章建立失敗', 500);
-      }
+      error.operation = error.operation || '文章建立';
       next(error);
     }
   }
@@ -32,7 +29,7 @@ class ArticleController {
         };
         // 建立搜尋條件
         const query = nameQuery ? { name: new RegExp(nameQuery, 'i') } : {};
-        
+
         const paginatedArticles = await this.articleService.getArticlesWithPagination(options, query);
         res.json(paginatedArticles);
       } else {
@@ -41,9 +38,7 @@ class ArticleController {
         res.json(articles);
       }
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('文章列表取得失敗', 500);
-      }
+      error.operation = error.operation || '文章列表取得';
       next(error);
     }
   }
@@ -54,9 +49,7 @@ class ArticleController {
       const article = await this.articleService.getArticleById(req.params.id);
       res.json(article);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('文章取得失敗', 500);
-      }
+      error.operation = error.operation || '文章取得';
       next(error);
     }
   }
@@ -64,16 +57,10 @@ class ArticleController {
   // 更新文章資料
   updateArticle = async (req, res, next) => {
     try {
-      const article = await this.articleService.updateArticle(
-        req.params.id, // 文章 ID
-        req.body, // 更新內容
-        { new: true, runValidators: true } // 返回更新後的文檔，並執行驗證
-      );
+      const article = await this.articleService.updateArticle(req.params.id, req.body);
       res.json(article);
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('文章更新失敗', 500);
-      }
+      error.operation = error.operation || '文章更新';
       next(error);
     }
   }
@@ -82,11 +69,9 @@ class ArticleController {
   deleteArticle = async (req, res, next) => {
     try {
       const result = await this.articleService.deleteArticle(req.params.id);
-      res.json({ message: 'Article deleted' });
+      res.json({ message: '文章已刪除' });
     } catch (error) {
-      if (!(error instanceof AppError)) {
-        error = new AppError('文章刪除失敗', 500);
-      }
+      error.operation = error.operation || '文章刪除';
       next(error);
     }
   }

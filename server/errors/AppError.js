@@ -10,8 +10,8 @@ class AppError extends Error {
 }
 
 class ResourceNotFoundError extends AppError {
-    constructor(resource, id) {
-        super(`${resource} with id ${id} not found`, 404, 'RESOURCE_NOT_FOUND');
+    constructor(resource) {
+        super(`找不到您請求的${resource}資料`, 404, 'RESOURCE_NOT_FOUND');
     }
 }
 
@@ -27,9 +27,21 @@ class FileOperationError extends AppError {
     }
 }
 
+class ServiceError extends AppError {
+    constructor(service, operation, details) {
+        super(
+            `${service} service ${operation} failed`, 
+            500, 
+            `${service.toUpperCase()}_${operation.toUpperCase()}_ERROR`
+        );
+        this.details = details;
+    }
+}
+
 module.exports = {
     AppError,
     ResourceNotFoundError,
     ValidationError,
-    FileOperationError
+    FileOperationError,
+    ServiceError
 };
