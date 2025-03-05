@@ -15,7 +15,7 @@
       <el-table-column prop="image" label="圖片">
         <template #default="{ row }">
           <img
-            :src="getImageUrl(row)"
+            :src="row.images.length > 0 ? row.images[0].imgUrl : ''"
             style="height: 6rem"
           />
         </template>
@@ -32,13 +32,6 @@
 <script setup>
 import GenericList from "@/components/GenericList.vue";
 import drinkApi from "@/api/drinkApi";
-
-const getImageUrl = (row) => {
-  if (row.images && row.images.length > 0) {
-    return `${import.meta.env.VITE_API_URL}${row.images[0].imgUrl}`;
-  }
-  return '';
-};
 
 const fetchDrinks = async (page, limit, nameQuery) => {
   return await drinkApi.fetchDrinks(page, limit, nameQuery);

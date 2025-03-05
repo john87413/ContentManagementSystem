@@ -10,7 +10,7 @@ const handleError = (error, req, res, next) => {
         const errorMessages = Object.values(error.errors).map(err => err.message).join(', ');
         res.status(400).json({ message: errorMessages });
     } else {
-        res.status(400).json({ message: error.message || "An unexpected error occurred" });
+        res.status(500).json({ message: error.message || "An unexpected error occurred" });
     }
 };
 

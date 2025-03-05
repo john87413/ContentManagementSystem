@@ -1,50 +1,52 @@
+const uploadService = require('../services/uploadService');
+const { AppError, ValidationError } = require('../errors/AppError'); // 自訂錯誤類別
+
 class UploadController {
   constructor(uploadService) {
     this.uploadService = uploadService;
   }
 
+  // 上傳圖片
   uploadImages = async (req, res, next) => {
     try {
       const files = req.files;
-      if (!files?.length) {
-        return next({ status: 400, message: '未找到圖片檔案' });
+
+      // 檢查是否有上傳檔案
+      if (!files || files.length === 0) {
+        throw new ValidationError('未提供圖片檔案');
       }
 
+      // 使用 uploadService 上傳圖片
       const uploadResults = await this.uploadService.uploadImages(files);
-      res.status(200).json(uploadResults);
+      res.send(uploadResults);
     } catch (error) {
-      next({ status: 500, message: error.message });
+      if (!(error instanceof AppError)) {
+        error = new AppError('圖片上傳發生錯誤', 500);
+      }
+      next(error);
     }
   }
 
+  // 刪除圖片
   deleteImage = async (req, res, next) => {
     try {
-      const { fileName } = req.params;
+      const fileName = req.params.fileName;
+
+      // 檢查是否有提供檔名
       if (!fileName) {
-        return next({ status: 400, message: '未提供圖片檔案名稱' });
+        throw new ValidationError('未提供圖片檔案名稱');
       }
 
+      // 使用 uploadService 刪除圖片
       const result = await this.uploadService.deleteImage(fileName);
-      res.status(200).json({ message: result });
+      res.send(result);
     } catch (error) {
-      next({ status: 500, message: error.message });
-    }
-  }
-
-  getImage = async (req, res, next) => {
-    try {
-      const { fileName } = req.params;
-      if (!fileName) {
-        return next({ status: 400, message: '未提供圖片檔案名稱' });
+      if (!(error instanceof AppError)) {
+        error = new AppError(`圖片刪除失敗`, 500);
       }
-
-      const stream = await this.uploadService.getImage(fileName);
-      stream.pipe(res);
-    } catch (error) {
-      next({ status: 500, message: error.message });
+      next(error);
     }
   }
 }
 
-const uploadService = require('../services/uploadService');
 module.exports = new UploadController(uploadService);

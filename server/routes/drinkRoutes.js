@@ -1,12 +1,13 @@
+// 飲品相關路由
 const express = require('express');
-const router = express.Router();
-
 const DrinkController = require('../controllers/drinkController');
 
-router.post('/', DrinkController.createDrink);
-router.get('/', DrinkController.getDrinks);
-router.get('/:id', DrinkController.getDrinkById);
-router.put('/:id', DrinkController.updateDrink);
-router.delete('/:id', DrinkController.deleteDrink);
+const router = express.Router();
+
+router.post('/', DrinkController.createDrink);          // 新增飲品
+router.get('/', DrinkController.getDrinks);             // 取得飲品列表
+router.get('/:id', DrinkController.getDrinkById);       // 取得特定飲品
+router.put('/:id', DrinkController.updateDrink);        // 更新飲品
+router.delete('/:id', DrinkController.deleteDrink);     // 刪除飲品
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const UploadService = require("../services/uploadService");
+const { FileOperationError } = require('../errors/AppError');
 
 const schema = new mongoose.Schema({
   name: {
@@ -43,7 +44,10 @@ schema.pre('deleteOne', { document: true, query: false }, async function() {
       await Promise.all(deletePromises);
     }
   } catch (error) {
-    throw new Error(`圖片刪除失敗`);
+    if (error instanceof FileOperationError) {
+      throw error;
+    }
+    throw new FileOperationError('圖片刪除失敗', 'delete');
   }
 });
 

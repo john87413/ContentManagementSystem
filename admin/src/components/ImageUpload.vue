@@ -83,7 +83,7 @@ const setContent = (newVal) => {
   if (newVal && imageList.value.length === 0) {
     imageList.value = newVal.map((file) => ({
       name: file.fileName,
-      url: import.meta.env.VITE_API_URL + file.imgUrl,
+      url: file.imgUrl,
       expiresAt: file.expiresAt,
     }));
     if (imageList.value.length >= props.imageLimit) {
@@ -118,7 +118,6 @@ const handleRemove = async (file) => {
     });
     imageList.value.splice(imageList.value.indexOf(file), 1);
     if (imageList.value.length < props.imageLimit) uploadDisabled.value = false;
-    ElMessage.success("圖片已刪除");
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("刪除失敗: " + error.message);

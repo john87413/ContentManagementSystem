@@ -191,7 +191,7 @@ const uploadImage = async () => {
     const result = await uploaderRef.value.uploadImages();
     model.images = [...result];
   } catch (error) {
-    ElMessage.error(`圖片上傳失敗: ${error.errorMessage}`);
+    throw error;
   }
 };
 
