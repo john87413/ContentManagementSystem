@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import router from '@/router';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -7,34 +9,40 @@ const instance = axios.create({
   },
 });
 
-// instance.interceptors.request.use(config => {
-//   const token = localStorage.getItem('token');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// }, error => {
-//   return Promise.reject(error);
-// });
-
-instance.interceptors.response.use(response => response, error => {
-  // Extract the error message
-  let errorMessage = 'An error occurred';
-  if (error.response) {
-    if (error.response.data && error.response.data.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.response.status) {
-      errorMessage = `Error ${error.response.status}: ${error.response.statusText}`;
-    }
-  } else if (error.request) {
-    errorMessage = 'No response received from the server';
+// 添加請求攔截器
+instance.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-
-  // Attach the errorMessage to the error object
-  error.errorMessage = errorMessage;
-
-  // Reject the promise so that it can be handled in the API call if needed
+  return config;
+}, error => {
   return Promise.reject(error);
 });
+
+// 添加響應攔截器
+instance.interceptors.response.use(
+  response => response, 
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Token 失效，清除本地存儲，跳轉登錄
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      ElMessage.error('登入狀態已過期，請重新登入');
+      router.push('/login');
+    }
+
+    // 提取錯誤訊息
+    let errorMessage = '未知錯誤';
+    if (error.response) {
+      errorMessage = error.response.data.message || `Error ${error.response.status}`;
+    } else if (error.request) {
+      errorMessage = '無法連接到伺服器';
+    }
+
+    error.errorMessage = errorMessage;
+    return Promise.reject(error);
+  }
+);
 
 export default instance;

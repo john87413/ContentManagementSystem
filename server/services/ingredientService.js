@@ -27,7 +27,7 @@ class IngredientService extends BaseService {
   }
 
   // 更新配料資料
-  async updateIngredient(id, data, options = {}) {
+  async updateIngredient(id, data) {
     return this.update(id, data);
   }
 

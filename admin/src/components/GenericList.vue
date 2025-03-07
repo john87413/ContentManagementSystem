@@ -28,7 +28,9 @@
       <el-table-column fixed="right" label="操作" width="200">
         <template #default="{ row }">
           <el-button type="primary" @click="editItem(row._id)">編輯</el-button>
-          <el-button type="primary" @click="deleteItem(row)">刪除</el-button>
+          <el-button v-if="hasDelete" type="primary" @click="deleteItem(row)">
+            刪除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -47,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 
@@ -58,13 +60,24 @@ const props = defineProps({
   searchLabel: String,
   searchPlaceholder: String,
   fetchItemsApi: Function,
-  beforeDeleteItem: Function,
-  deleteItemApi: Function,
+  beforeDeleteItem: {
+    type: Function,
+    default: (item) => `你確定要刪除 "${item.name}" 嗎？`,
+  },
+  deleteItemApi: {
+    type: Function,
+    default: null,
+  },
   editPath: String,
   itemsKey: String,
+  hasDelete: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const router = useRouter();
+const loadingStore = useLoadingStore();
 
 const items = ref([]);
 const currentPage = ref(1);
@@ -77,7 +90,6 @@ const sortParams = ref({
   prop: "",
   order: "",
 });
-const loadingStore = useLoadingStore();
 
 const fetchData = async (page = 1, limit = 10, nameQuery = "") => {
   try {
@@ -89,7 +101,6 @@ const fetchData = async (page = 1, limit = 10, nameQuery = "") => {
       sortParams.value.prop,
       sortParams.value.order
     );
-    console.log(res.data[props.itemsKey]);
     items.value = res.data[props.itemsKey];
     totalItems.value = res.data.total;
   } catch (error) {
@@ -104,6 +115,8 @@ const editItem = (id) => {
 };
 
 const deleteItem = async (item) => {
+  if (!props.deleteItemApi) return;
+
   try {
     await ElMessageBox.confirm(props.beforeDeleteItem(item), "警告", {
       confirmButtonText: "確定",
