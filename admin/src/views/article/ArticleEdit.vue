@@ -7,7 +7,6 @@
       ref="formRef"
       :model="model"
       :rules="rules"
-      style="max-width: 500px"
       label-width="70px"
       @submit.prevent="save"
     >
