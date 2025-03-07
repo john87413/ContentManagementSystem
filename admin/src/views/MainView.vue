@@ -2,7 +2,7 @@
   <el-container style="height: 100vh">
     <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
       <el-menu router unique-opened :default-active="$route.path">
-        <!-- 內容管理模塊 - 需要 contentManagement 權限 -->
+        <!-- 內容管理 - 需要 contentManagement 權限 -->
         <el-sub-menu index="1" v-if="hasContentPermission">
           <template #title> <i class="el-icon-message"></i>內容管理 </template>
 
@@ -25,7 +25,7 @@
           </el-menu-item-group>
         </el-sub-menu>
 
-        <!-- 行銷管理模塊 - 需要 marketingManagement 權限 -->
+        <!-- 行銷管理 - 需要 marketingManagement 權限 -->
         <el-sub-menu index="2" v-if="hasMarketingPermission">
           <template #title> <i class="el-icon-message"></i>行銷管理 </template>
 
@@ -48,7 +48,7 @@
           </el-menu-item-group>
         </el-sub-menu>
 
-        <!-- 系統設置模塊 - 需要 systemSettings 權限 -->
+        <!-- 系統設置 - 需要 systemSettings 權限 -->
         <el-sub-menu index="3" v-if="hasSystemPermission">
           <template #title> <i class="el-icon-message"></i>系統設置</template>
 

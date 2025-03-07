@@ -56,7 +56,8 @@ class UploadService {
 
       const [exists] = await blob.exists();
       if (!exists) {
-        throw new FileOperationError('圖片不存在', 'delete');
+        return '刪除成功';
+        // throw new FileOperationError('圖片不存在', 'delete');
       }
 
       await blob.delete();

@@ -44,7 +44,7 @@ schema.pre('deleteOne', { document: true, query: false }, async function () {
       await Promise.all(deletePromises);
     }
   } catch (error) {
-    error.operation = '圖片刪除';
+    error.operation = error.operation || '圖片刪除';
     throw error;
   }
 });

@@ -17,13 +17,14 @@ const schema = new mongoose.Schema({
   content: { type: String },
 }, { timestamps: true });
 
-schema.pre('deleteOne', { document: true, query: false }, async function() {
+schema.pre('deleteOne', { document: true, query: false }, async function () {
   try {
     if (this.image && this.image.fileName) {
       await UploadService.deleteImage(this.image.fileName);
     }
   } catch (error) {
-    throw new Error('圖片刪除失敗');
+    error.operation = error.operation || '圖片刪除';
+    throw error;
   }
 });
 
