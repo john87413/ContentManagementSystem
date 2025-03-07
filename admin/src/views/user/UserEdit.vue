@@ -66,10 +66,10 @@ const model = reactive({
   username: "",
   password: "",
   confirmPassword: "",
-  role: "editor",
+  role: "contentManager",
 });
 
-const validateConfirmPassword = (value, callback) => {
+const validateConfirmPassword = (rule, value, callback) => {
   if (model.password !== value) {
     callback(new Error("兩次輸入的密碼不一致"));
   } else {
@@ -90,7 +90,7 @@ const rules = {
       trigger: "blur",
     },
     {
-      validator: (value, callback) => {
+      validator: (rule, value, callback) => {
         // 新建用戶或編輯時有輸入密碼時，檢查密碼長度
         if (value && value.length < 6) {
           callback(new Error("密碼至少需要6個字符"));

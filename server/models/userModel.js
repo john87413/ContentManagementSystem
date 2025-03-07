@@ -4,12 +4,14 @@ const schema = new mongoose.Schema({
   username: {
     type: String,
     unique: [true, '名稱不得重複'],
-    required: [true, '名稱不得為空']
+    required: [true, '名稱不得為空'],
+    minlength: [3, '帳號至少需要3個字符']
   },
   password: {
     type: String,
     required: [true, '密碼不得為空'],
     select: false,
+    minlength: [6, '密碼至少需要6個字符'], // 添加最小長度驗證
     set(val) {
       return require("bcryptjs").hashSync(val, 10);
     },
@@ -39,28 +41,5 @@ const schema = new mongoose.Schema({
     }
   }
 }, { timestamps: true });
-
-// 根據角色自動設置權限
-schema.pre('save', function(next) {
-  switch(this.role) {
-    case 'superAdmin':
-      this.permissions.contentManagement = true;
-      this.permissions.marketingManagement = true;
-      this.permissions.systemSettings = true;
-      break;
-    case 'contentManager':
-      this.permissions.contentManagement = true;
-      break;
-    case 'marketingManager':
-      this.permissions.marketingManagement = true;
-      break;
-    case 'systemAdmin':
-      this.permissions.systemSettings = true;
-      break;
-    default:
-      break;
-  }
-  next();
-});
 
 module.exports = mongoose.model("User", schema);

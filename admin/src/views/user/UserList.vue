@@ -52,6 +52,17 @@ const deleteUser = async (id) => {
 };
 
 const formatRole = (role) => {
-  return role === "admin" ? "管理員" : "編輯";
+  switch (role) {
+    case "superAdmin":
+      return "超級管理員";
+    case "contentManager":
+      return "內容管理員";
+    case "marketingManager":
+      return "行銷管理員";
+    case "systemAdmin":
+      return "系統管理員";
+    default:
+      return role; // 返回原始值，以防未知角色
+  }
 };
 </script>

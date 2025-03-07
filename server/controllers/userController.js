@@ -12,16 +12,33 @@ class UserController {
             const { username, password } = req.body;
             const user = await this.userService.validateCredentials(username, password);
 
+            // 提取權限列表
+            const permissions = user.permissions ?
+                Object.keys(user.permissions).filter(key => user.permissions[key])
+                : [];
+                
             // 生成 JWT Token
             const token = jwt.sign(
-                { id: user._id, username: user.username, role: user.role },
+                {
+                    id: user._id,
+                    username: user.username,
+                    role: user.role,
+                    permissions
+                },
                 process.env.JWT_SECRET,
                 { expiresIn: '1d' }
             );
 
-            res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
+            res.json({
+                token,
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    role: user.role,
+                    permissions
+                }
+            });
         } catch (error) {
-            console.log(error);
             error.operation = error.operation || '用戶登入';
             next(error);
         }

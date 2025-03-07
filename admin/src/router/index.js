@@ -18,33 +18,33 @@ const router = createRouter({
       name: 'main',
       component: MainView,
       children: [
-        { path: '/categories/create', component: () => import('@/views/category/CategoryEdit.vue') },
-        { path: '/categories/edit/:id', component: () => import('@/views/category/CategoryEdit.vue'), props: true },
-        { path: '/categories/list', component: () => import('@/views/category/CategoryList.vue') },
+        { path: '/categories/create', component: () => import('@/views/category/CategoryEdit.vue'), meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/categories/edit/:id', component: () => import('@/views/category/CategoryEdit.vue'), props: true, meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/categories/list', component: () => import('@/views/category/CategoryList.vue'), meta: { requiredPermissions: ['contentManagement'] } },
 
-        { path: '/ingredients/create', component: () => import('@/views/ingredient/IngredientEdit.vue') },
-        { path: '/ingredients/edit/:id', component: () => import('@/views/ingredient/IngredientEdit.vue'), props: true },
-        { path: '/ingredients/list', component: () => import('@/views/ingredient/IngredientList.vue') },
+        { path: '/ingredients/create', component: () => import('@/views/ingredient/IngredientEdit.vue'), meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/ingredients/edit/:id', component: () => import('@/views/ingredient/IngredientEdit.vue'), props: true, meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/ingredients/list', component: () => import('@/views/ingredient/IngredientList.vue'), meta: { requiredPermissions: ['contentManagement'] } },
 
-        { path: '/drinks/create', component: () => import('@/views/drink/DrinkEdit.vue') },
-        { path: '/drinks/edit/:id', component: () => import('@/views/drink/DrinkEdit.vue'), props: true },
-        { path: '/drinks/list', component: () => import('@/views/drink/DrinkList.vue') },
+        { path: '/drinks/create', component: () => import('@/views/drink/DrinkEdit.vue'), meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/drinks/edit/:id', component: () => import('@/views/drink/DrinkEdit.vue'), props: true, meta: { requiredPermissions: ['contentManagement'] } },
+        { path: '/drinks/list', component: () => import('@/views/drink/DrinkList.vue'), meta: { requiredPermissions: ['contentManagement'] } },
 
-        { path: '/articles/create', component: () => import('@/views/article/ArticleEdit.vue') },
-        { path: '/articles/edit/:id', component: () => import('@/views/article/ArticleEdit.vue'), props: true },
-        { path: '/articles/list', component: () => import('@/views/article/ArticleList.vue') },
+        { path: '/articles/create', component: () => import('@/views/article/ArticleEdit.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/articles/edit/:id', component: () => import('@/views/article/ArticleEdit.vue'), props: true, meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/articles/list', component: () => import('@/views/article/ArticleList.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
 
-        { path: '/carousels/create', component: () => import('@/views/carousel/CarouselEdit.vue') },
-        { path: '/carousels/edit/:id', component: () => import('@/views/carousel/CarouselEdit.vue'), props: true },
-        { path: '/carousels/list', component: () => import('@/views/carousel/CarouselList.vue') },
+        { path: '/carousels/create', component: () => import('@/views/carousel/CarouselEdit.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/carousels/edit/:id', component: () => import('@/views/carousel/CarouselEdit.vue'), props: true, meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/carousels/list', component: () => import('@/views/carousel/CarouselList.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
 
-        { path: '/shops/create', component: () => import('@/views/shop/ShopEdit.vue') },
-        { path: '/shops/edit/:id', component: () => import('@/views/shop/ShopEdit.vue'), props: true },
-        { path: '/shops/list', component: () => import('@/views/shop/ShopList.vue') },
+        { path: '/shops/create', component: () => import('@/views/shop/ShopEdit.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/shops/edit/:id', component: () => import('@/views/shop/ShopEdit.vue'), props: true, meta: { requiredPermissions: ['marketingManagement'] } },
+        { path: '/shops/list', component: () => import('@/views/shop/ShopList.vue'), meta: { requiredPermissions: ['marketingManagement'] } },
 
-        { path: '/users/create', component: () => import('@/views/user/UserEdit.vue') },
-        { path: '/users/edit/:id', component: () => import('@/views/user/UserEdit.vue'), props: true },
-        { path: '/users/list', component: () => import('@/views/user/UserList.vue') },
+        { path: '/users/create', component: () => import('@/views/user/UserEdit.vue'), meta: { requiredPermissions: ['systemSettings'] } },
+        { path: '/users/edit/:id', component: () => import('@/views/user/UserEdit.vue'), props: true, meta: { requiredPermissions: ['systemSettings'] } },
+        { path: '/users/list', component: () => import('@/views/user/UserList.vue'), meta: { requiredPermissions: ['systemSettings'] } },
       ]
     }
   ]
@@ -68,10 +68,16 @@ router.beforeEach((to, from, next) => {
   }
 
   // 檢查權限
-  if (to.meta.requiredRoles && !to.meta.requiredRoles.includes(user.role)) {
-    ElMessage.error('您沒有權限訪問此頁面')
-    next(from.path)
-    return
+  if (to.meta.requiredPermissions) {
+    const hasPermission = to.meta.requiredPermissions.some(
+      permission => user.permissions.includes(permission)
+    )
+
+    if (!hasPermission) {
+      ElMessage.error('您沒有權限訪問此頁面')
+      next(from.path)
+      return
+    }
   }
 
   next()

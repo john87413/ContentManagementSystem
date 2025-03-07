@@ -2,7 +2,8 @@
   <el-container style="height: 100vh">
     <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
       <el-menu router unique-opened :default-active="$route.path">
-        <el-sub-menu index="1">
+        <!-- 內容管理模塊 - 需要 contentManagement 權限 -->
+        <el-sub-menu index="1" v-if="hasContentPermission">
           <template #title> <i class="el-icon-message"></i>內容管理 </template>
 
           <el-menu-item-group>
@@ -24,7 +25,8 @@
           </el-menu-item-group>
         </el-sub-menu>
 
-        <el-sub-menu index="2">
+        <!-- 行銷管理模塊 - 需要 marketingManagement 權限 -->
+        <el-sub-menu index="2" v-if="hasMarketingPermission">
           <template #title> <i class="el-icon-message"></i>行銷管理 </template>
 
           <el-menu-item-group>
@@ -46,7 +48,8 @@
           </el-menu-item-group>
         </el-sub-menu>
 
-        <el-sub-menu index="3">
+        <!-- 系統設置模塊 - 需要 systemSettings 權限 -->
+        <el-sub-menu index="3" v-if="hasSystemPermission">
           <template #title> <i class="el-icon-message"></i>系統設置</template>
 
           <el-menu-item-group>
@@ -59,7 +62,8 @@
     </el-aside>
 
     <el-container>
-      <el-header style="text-align: right; font-size: 12px">
+      <el-header>
+        <span style="margin-right: 15px">Hi, {{ currentUserName }}</span>
         <el-button type="danger" @click="logout">登出</el-button>
       </el-header>
 
@@ -71,6 +75,7 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessageBox, ElMessage } from 'element-plus';
 
@@ -79,6 +84,27 @@ import { useAuthStore } from '@/stores/AuthStore';
 const router = useRouter();
 const authStore = useAuthStore();
 
+// 獲取當前登錄用戶信息
+const currentUser = computed(() => authStore.getUser());
+const currentUserName = computed(() => currentUser.value?.username || '');
+
+// 根據用戶角色判斷權限
+const hasContentPermission = computed(() => {
+  if (!currentUser.value || !currentUser.value.permissions) return false;
+  return currentUser.value.permissions.includes('contentManagement');
+});
+
+const hasMarketingPermission = computed(() => {
+  if (!currentUser.value || !currentUser.value.permissions) return false;
+  return currentUser.value.permissions.includes('marketingManagement');
+});
+
+const hasSystemPermission = computed(() => {
+  if (!currentUser.value || !currentUser.value.permissions) return false;
+  return currentUser.value.permissions.includes('systemSettings');
+});
+
+// 登出處理
 const logout = async () => {
   try {
     await ElMessageBox.confirm("確定要登出系統嗎？", "提示", {
@@ -106,6 +132,9 @@ const logout = async () => {
   background-color: #b3c0d1;
   color: #333;
   line-height: 60px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .el-aside {

@@ -17,7 +17,6 @@ export const useAuthStore = defineStore("auth", () => {
         // 儲存 token 和用戶信息
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        console.log(res);
         return res;
     };
 

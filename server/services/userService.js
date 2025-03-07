@@ -8,11 +8,32 @@ class UserService extends BaseService {
         super(userModel, '用戶', 'users');
     }
 
-    // 創建新用戶時檢查密碼複雜度
-    validatePassword(password) {
-        if (password.length < 6) {
-            throw new ValidationError('密碼至少需要6個字符');
+    // 處理角色權限邏輯
+    getPermissionsForRole(role) {
+        const permissions = {
+            contentManagement: false,
+            marketingManagement: false,
+            systemSettings: false
+        };
+
+        switch (role) {
+            case 'superAdmin':
+                permissions.contentManagement = true;
+                permissions.marketingManagement = true;
+                permissions.systemSettings = true;
+                break;
+            case 'contentManager':
+                permissions.contentManagement = true;
+                break;
+            case 'marketingManager':
+                permissions.marketingManagement = true;
+                break;
+            case 'systemAdmin':
+                permissions.systemSettings = true;
+                break;
         }
+
+        return permissions;
     }
 
     // 驗證使用者憑證
@@ -34,7 +55,7 @@ class UserService extends BaseService {
 
     // 創建新用戶
     async createUser(data) {
-        this.validatePassword(data.password);
+        data.permissions = this.getPermissionsForRole(data.role);
         return this.create(data);
     }
 
@@ -55,10 +76,7 @@ class UserService extends BaseService {
 
     // 更新用戶資料
     async updateUser(id, data) {
-        // 如果更新密碼，檢查密碼複雜度
-        if (data.password) {
-            this.validatePassword(data.password);
-        }
+        data.permissions = this.getPermissionsForRole(data.role);
         return this.update(id, data);
     }
 
