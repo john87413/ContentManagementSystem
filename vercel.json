@@ -1,36 +1,26 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server/index.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "admin/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "zeroConfig": false,
-        "distDir": "dist",
-        "buildCommand": "cd admin && npm install && npm run build"
+    "version": 2,
+    "builds": [
+      {
+        "src": "server/index.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "admin/package.json",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "dist"
+        }
       }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/index.js"
-    },
-    {
-      "src": "/(assets/.+)",
-      "dest": "/dist/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))",
-      "dest": "/dist/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/index.html"
-    }
-  ]
-}
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "server/index.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/admin/index.html"
+      }
+    ]
+  }
