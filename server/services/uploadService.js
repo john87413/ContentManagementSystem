@@ -37,7 +37,7 @@ class UploadService {
         });
 
         // 組合圖片的公開 URL
-        const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media`;
+        const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app/o/${encodeURIComponent(fileName)}?alt=media`;
         return { fileName, imgUrl };
       } catch (error) {
         throw error;

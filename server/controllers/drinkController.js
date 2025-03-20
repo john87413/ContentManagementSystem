@@ -11,7 +11,6 @@ class DrinkController {
       const drink = await this.drinkService.createDrink(req.body);
       res.status(201).json(drink);
     } catch (error) {
-      console.log(error);
       error.operation = error.operation || '飲品建立';
       next(error);
     }
