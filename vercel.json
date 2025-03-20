@@ -9,7 +9,9 @@
       "src": "admin/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "zeroConfig": false,
+        "distDir": "dist",
+        "buildCommand": "cd admin && npm install && npm run build"
       }
     }
   ],
@@ -19,11 +21,16 @@
       "dest": "server/index.js"
     },
     {
-      "handle": "filesystem"
+      "src": "/(assets/.+)",
+      "dest": "/dist/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))",
+      "dest": "/dist/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "admin/dist/index.html"
+      "dest": "/dist/index.html"
     }
   ]
 }
