@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { ResourceNotFoundError } = require('../errors/AppError');
+const { ResourceNotFoundError, ValidationError } = require('../errors/AppError');
 
 // 基礎服務類，提供通用的 CRUD 操作供其他服務繼承
 class BaseService {
@@ -8,6 +8,17 @@ class BaseService {
         this.model = model;
         this.resourceName = resourceName;
         this.resourcesKey = resourcesKey;
+    }
+
+    // 設置當前用戶
+    setCurrentUser(user) {
+        this.currentUser = user;
+        return this;
+    }
+    
+    // 檢查是否為超級管理員
+    isSuperAdmin() {
+        return this.currentUser && this.currentUser.role === 'superAdmin';
     }
 
     // 檢查 ID 是否為有效的 MongoDB ObjectId
@@ -213,13 +224,23 @@ class BaseService {
             // 檢查ID格式
             this.validateId(id);
 
-            // 更新資源
-            const resource = await this.model.findByIdAndUpdate(id, data, options);
-
             // 檢查資源是否存在
+            const resource = await this.model.findById(id);
             this.validateResourceExists(resource, id);
 
-            return resource;
+            // 檢查是否為受保護資料
+            if (resource.isProtected && !this.isSuperAdmin()) {
+                throw new ValidationError(`此${this.resourceName}為系統範例資料，不可編輯`);
+            }
+
+            // 從更新資料中移除 isProtected 字段，防止用戶更改保護狀態
+            if (data.isProtected !== undefined) {
+                delete data.isProtected;
+            }
+
+            // 更新資源
+            const updatedResource = await this.model.findByIdAndUpdate(id, data, options);
+            return updatedResource;
         } catch (error) {
             throw error;
         }
@@ -236,6 +257,11 @@ class BaseService {
 
             // 檢查資源是否存在
             this.validateResourceExists(resource, id);
+
+            // 檢查是否為受保護資料
+            if (resource.isProtected && !this.isSuperAdmin()) {
+                throw new ValidationError(`此${this.resourceName}為系統範例資料，不可刪除`);
+            }
 
             // 刪除資源
             await resource.deleteOne();

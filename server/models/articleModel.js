@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const UploadService = require("../services/uploadService");
+const baseSchemaFields = require('./baseSchemaFields');
 
 const schema = new mongoose.Schema({
-  title: { type: String, unique: [true, '標題不得重複'], required: [true, '標題不得為空'] },
+  title: { type: String, unique: true, required: [true, '標題不得為空'] },
   category: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Category",
@@ -15,6 +16,7 @@ const schema = new mongoose.Schema({
     },
   },
   content: { type: String },
+  ...baseSchemaFields
 }, { timestamps: true });
 
 schema.pre('deleteOne', { document: true, query: false }, async function () {

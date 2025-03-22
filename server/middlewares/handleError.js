@@ -3,7 +3,6 @@ const { AppError } = require('../errors/AppError');
 
 const handleError = (error, req, res, next) => {
     const operation = error.operation || '未知操作';
-
     // Mongoose unique 錯誤
     if (error.name === 'MongoServerError' && error.code === 11000) {
         const field = Object.keys(error.keyValue)[0];

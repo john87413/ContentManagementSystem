@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const UploadService = require("../services/uploadService");
-const { FileOperationError } = require('../errors/AppError');
+const baseSchemaFields = require('./baseSchemaFields');
 
 const schema = new mongoose.Schema({
   name: {
     type: String,
-    unique: [true, "名稱不得重複"],
+    unique: true,
     required: [true, "名稱不得為空"],
   },
   price: { type: Number, required: [true, "價格不得為空"], },
@@ -32,6 +32,7 @@ const schema = new mongoose.Schema({
   },
   introduction: { type: String },
   alert: { type: String },
+  ...baseSchemaFields
 }, { timestamps: true });
 
 schema.pre('deleteOne', { document: true, query: false }, async function () {

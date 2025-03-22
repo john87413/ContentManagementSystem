@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
+const baseSchemaFields = require('./baseSchemaFields');
 
 const schema = new mongoose.Schema({
   username: {
     type: String,
-    unique: [true, '名稱不得重複'],
+    unique: true,
     required: [true, '名稱不得為空'],
     minlength: [3, '帳號至少需要3個字符']
   },
@@ -39,7 +40,8 @@ const schema = new mongoose.Schema({
       type: Boolean,
       default: false
     }
-  }
+  },
+  ...baseSchemaFields
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", schema);

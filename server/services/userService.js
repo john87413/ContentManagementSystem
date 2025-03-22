@@ -29,6 +29,8 @@ class UserService extends BaseService {
                 permissions.marketingManagement = true;
                 break;
             case 'systemAdmin':
+                permissions.contentManagement = true;
+                permissions.marketingManagement = true;
                 permissions.systemSettings = true;
                 break;
         }
