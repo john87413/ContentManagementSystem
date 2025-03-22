@@ -11,9 +11,6 @@ const app = express();
 
 app.use(require("cors")());
 app.use(express.json());
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date().toISOString() });
-});
 app.use("/api", apiRoutes);
 app.use(handleError);
 
