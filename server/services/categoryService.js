@@ -8,8 +8,8 @@ class CategoryService extends BaseService {
   }
 
   // 建立新分類
-  async createCategory(data) {
-    return this.create(data);
+  async createCategory(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁分類列表
@@ -28,7 +28,7 @@ class CategoryService extends BaseService {
   }
 
   // 更新分類資料
-  async updateCategory(id, data) {
+  async updateCategory(id, data, user) {
     if (data.parent && data.parent.toString() === id) {
       throw new ValidationError('分類不能設定自己為父分類');
     }
@@ -37,8 +37,8 @@ class CategoryService extends BaseService {
   }
 
   // 刪除特定分類
-  async deleteCategory(id) {
-    return this.delete(id);
+  async deleteCategory(id, user) {
+    return this.delete(id, user);
   }
 }
 

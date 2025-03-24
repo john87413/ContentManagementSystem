@@ -119,29 +119,33 @@ const save = async () => {
   loadingStore.showLoading("儲存中...");
 
   try {
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        try {
-          if (props.id) {
-            await shopApi.updateShop(props.id, model);
-          } else {
-            await shopApi.createShop(model);
+    if (model.isProtected) {
+      ElMessage.error("系統範例資料不可編輯");
+    } else {
+      await formRef.value.validate(async (valid) => {
+        if (valid) {
+          try {
+            if (props.id) {
+              await shopApi.updateShop(props.id, model);
+            } else {
+              await shopApi.createShop(model);
+            }
+            router.push("/shops/list");
+            ElMessage({
+              type: "success",
+              message: "儲存成功",
+            });
+          } catch (error) {
+            ElMessage.error(`儲存失敗: ${error.errorMessage}`);
           }
-          router.push("/shops/list");
+        } else {
           ElMessage({
-            type: "success",
-            message: "儲存成功",
+            type: "warning",
+            message: "請依照指示完成表單",
           });
-        } catch (error) {
-          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-      } else {
-        ElMessage({
-          type: "warning",
-          message: "請依照指示完成表單",
-        });
-      }
-    });
+      });
+    }
   } finally {
     loadingStore.hideLoading();
   }

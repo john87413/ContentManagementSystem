@@ -8,7 +8,7 @@ class ShopController {
   // 創建新門市
   createShop = async (req, res, next) => {
     try {
-      const shop = await this.shopService.createShop(req.body);
+      const shop = await this.shopService.createShop(req.body, req.user);
       res.status(201).json(shop);
     } catch (error) {
       error.operation = error.operation || '門市建立';
@@ -64,7 +64,7 @@ class ShopController {
   // 更新門市資料
   updateShop = async (req, res, next) => {
     try {
-      const shop = await this.shopService.updateShop(req.params.id, req.body);
+      const shop = await this.shopService.updateShop(req.params.id, req.body, req.user);
       res.json(shop);
     } catch (error) {
       error.operation = error.operation || '門市更新';
@@ -75,7 +75,7 @@ class ShopController {
   // 刪除特定門市
   deleteShop = async (req, res, next) => {
     try {
-      const result = await this.shopService.deleteShop(req.params.id);
+      const result = await this.shopService.deleteShop(req.params.id, req.user);
       res.json({ message: '門市已刪除' });
     } catch (error) {
       error.operation = error.operation || '門市刪除';

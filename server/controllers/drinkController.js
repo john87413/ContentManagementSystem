@@ -8,7 +8,7 @@ class DrinkController {
   // 創建新飲品
   createDrink = async (req, res, next) => {
     try {
-      const drink = await this.drinkService.createDrink(req.body);
+      const drink = await this.drinkService.createDrink(req.body, req.user);
       res.status(201).json(drink);
     } catch (error) {
       error.operation = error.operation || '飲品建立';
@@ -64,7 +64,7 @@ class DrinkController {
   // 更新飲品資料
   updateDrink = async (req, res, next) => {
     try {
-      const drink = await this.drinkService.updateDrink(req.params.id, req.body);
+      const drink = await this.drinkService.updateDrink(req.params.id, req.body, req.user);
       res.json(drink);
     } catch (error) {
       error.operation = error.operation || '飲品更新';
@@ -75,7 +75,7 @@ class DrinkController {
   // 刪除特定飲品
   deleteDrink = async (req, res, next) => {
     try {
-      const result = await this.drinkService.deleteDrink(req.params.id);
+      const result = await this.drinkService.deleteDrink(req.params.id, req.user);
       res.json({ message: "飲品已刪除" });
     } catch (error) {
       error.operation = error.operation || '飲品刪除';

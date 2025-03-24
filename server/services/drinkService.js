@@ -7,8 +7,8 @@ class DrinkService extends BaseService {
   }
 
   // 建立新飲品
-  async createDrink(data) {
-    return this.create(data);
+  async createDrink(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁飲品列表
@@ -27,13 +27,13 @@ class DrinkService extends BaseService {
   }
 
   // 更新飲品資料
-  async updateDrink(id, data) {
-    return this.update(id, data);
+  async updateDrink(id, data, user) {
+    return this.update(id, data, user);
   }
 
   // 刪除特定飲品
-  async deleteDrink(id) {
-    return this.delete(id);
+  async deleteDrink(id, user) {
+    return this.delete(id, user);
   }
 }
 

@@ -7,8 +7,8 @@ class ShopService extends BaseService {
   }
 
   // 建立新門市
-  async createShop(data) {
-    return this.create(data);
+  async createShop(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁門市列表
@@ -27,13 +27,13 @@ class ShopService extends BaseService {
   }
 
   // 更新門市資料
-  async updateShop(id, data) {
-    return this.update(id, data);
+  async updateShop(id, data, user) {
+    return this.update(id, data, user);
   }
 
   // 刪除特定門市
-  async deleteShop(id) {
-    return this.delete(id);
+  async deleteShop(id, user) {
+    return this.delete(id, user);
   }
 }
 

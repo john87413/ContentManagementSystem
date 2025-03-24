@@ -7,8 +7,8 @@ class IngredientService extends BaseService {
   }
 
   // 建立新配料
-  async createIngredient(data) {
-    return this.create(data);
+  async createIngredient(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁配料列表
@@ -27,13 +27,13 @@ class IngredientService extends BaseService {
   }
 
   // 更新配料資料
-  async updateIngredient(id, data) {
-    return this.update(id, data);
+  async updateIngredient(id, data, user) {
+    return this.update(id, data, user);
   }
 
   // 刪除特定配料
-  async deleteIngredient(id) {
-    return this.delete(id);
+  async deleteIngredient(id, user) {
+    return this.delete(id, user);
   }
 }
 

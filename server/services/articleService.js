@@ -7,8 +7,8 @@ class ArticleService extends BaseService {
   }
 
   // 建立新文章
-  async createArticle(data) {
-    return this.create(data);
+  async createArticle(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁文章列表
@@ -27,13 +27,13 @@ class ArticleService extends BaseService {
   }
 
   // 更新文章資料
-  async updateArticle(id, data) {
-    return this.update(id, data);
+  async updateArticle(id, data, user) {
+    return this.update(id, data, user);
   }
 
   // 刪除特定文章
-  async deleteArticle(id) {
-    return this.delete(id);
+  async deleteArticle(id, user) {
+    return this.delete(id, user);
   }
 }
 

@@ -10,15 +10,9 @@ class BaseService {
         this.resourcesKey = resourcesKey;
     }
 
-    // 設置當前用戶
-    setCurrentUser(user) {
-        this.currentUser = user;
-        return this;
-    }
-    
     // 檢查是否為超級管理員
-    isSuperAdmin() {
-        return this.currentUser && this.currentUser.role === 'superAdmin';
+    isSuperAdmin(user) {
+        return user && user.role === 'superAdmin';
     }
 
     // 檢查 ID 是否為有效的 MongoDB ObjectId
@@ -49,8 +43,9 @@ class BaseService {
     }
 
     // 建立新資源
-    async create(data) {
+    async create(data, user) {
         try {
+            if (user) data.updatedBy = user.id;
             const resource = new this.model(data);
             return await resource.save();
         } catch (error) {
@@ -219,7 +214,7 @@ class BaseService {
     }
 
     // 更新資源
-    async update(id, data, options = { new: true, runValidators: true }) {
+    async update(id, data, user, options = { new: true, runValidators: true }) {
         try {
             // 檢查ID格式
             this.validateId(id);
@@ -229,13 +224,18 @@ class BaseService {
             this.validateResourceExists(resource, id);
 
             // 檢查是否為受保護資料
-            if (resource.isProtected && !this.isSuperAdmin()) {
-                throw new ValidationError(`此${this.resourceName}為系統範例資料，不可編輯`);
+            if (resource.isProtected && !this.isSuperAdmin(user)) {
+                throw new ValidationError(`系統範例資料不可編輯`);
             }
 
             // 從更新資料中移除 isProtected 字段，防止用戶更改保護狀態
             if (data.isProtected !== undefined) {
                 delete data.isProtected;
+            }
+
+            // 添加更新者資訊
+            if (user) {
+                data.updatedBy = user.id;
             }
 
             // 更新資源
@@ -247,7 +247,7 @@ class BaseService {
     }
 
     // 刪除資源
-    async delete(id) {
+    async delete(id, user) {
         try {
             // 檢查ID格式
             this.validateId(id);
@@ -259,8 +259,8 @@ class BaseService {
             this.validateResourceExists(resource, id);
 
             // 檢查是否為受保護資料
-            if (resource.isProtected && !this.isSuperAdmin()) {
-                throw new ValidationError(`此${this.resourceName}為系統範例資料，不可刪除`);
+            if (resource.isProtected && !this.isSuperAdmin(user)) {
+                throw new ValidationError(`系統範例資料不可刪除`);
             }
 
             // 刪除資源

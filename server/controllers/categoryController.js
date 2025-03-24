@@ -8,7 +8,7 @@ class CategoryController {
   // 創建新分類
   createCategory = async (req, res, next) => {
     try {
-      const category = await this.categoryService.createCategory(req.body);
+      const category = await this.categoryService.createCategory(req.body, req.user);
       res.status(201).json(category);
     } catch (error) {
       error.operation = error.operation || '分類建立';
@@ -68,10 +68,9 @@ class CategoryController {
   // 更新分類資料
   updateCategory = async (req, res, next) => {
     try {
-      const category = await this.categoryService.updateCategory(req.params.id, req.body);
+      const category = await this.categoryService.updateCategory(req.params.id, req.body, req.user);
       res.json(category);
     } catch (error) {
-      console.log(error);
       error.operation = error.operation || '分類更新';
       next(error);
     }
@@ -80,7 +79,7 @@ class CategoryController {
   // 刪除特定分類
   deleteCategory = async (req, res, next) => {
     try {
-      const result = await this.categoryService.deleteCategory(req.params.id);
+      const result = await this.categoryService.deleteCategory(req.params.id, req.user);
       res.json({ message: '分類已刪除' });
     } catch (error) {
       error.operation = error.operation || '分類刪除';

@@ -11,11 +11,9 @@
   "dependencies": {
     "axios": "^1.7.5",
     "browser-image-compression": "^2.0.2",
-    "compressorjs": "^1.2.1",
     "element-plus": "^2.7.6",
     "pinia": "^2.1.7",
     "quill": "^2.0.2",
-    "spark-md5": "^3.0.2",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },

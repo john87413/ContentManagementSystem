@@ -120,41 +120,45 @@ const save = async () => {
   loadingStore.showLoading("儲存中...");
 
   try {
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        try {
-          // 準備保存的數據
-          const saveData = {
-            username: model.username,
-            role: model.role,
-          };
+    if (model.isProtected) {
+      ElMessage.error("系統範例資料不可編輯");
+    } else {
+      await formRef.value.validate(async (valid) => {
+        if (valid) {
+          try {
+            // 準備保存的數據
+            const saveData = {
+              username: model.username,
+              role: model.role,
+            };
 
-          // 如果密碼不為空，加入密碼
-          if (model.password) {
-            saveData.password = model.password;
+            // 如果密碼不為空，加入密碼
+            if (model.password) {
+              saveData.password = model.password;
+            }
+
+            if (props.id) {
+              await userApi.updateUser(props.id, saveData);
+            } else {
+              await userApi.createUser(saveData);
+            }
+
+            router.push("/users/list");
+            ElMessage({
+              type: "success",
+              message: "儲存成功",
+            });
+          } catch (error) {
+            ElMessage.error(`儲存失敗: ${error.errorMessage}`);
           }
-
-          if (props.id) {
-            await userApi.updateUser(props.id, saveData);
-          } else {
-            await userApi.createUser(saveData);
-          }
-
-          router.push("/users/list");
+        } else {
           ElMessage({
-            type: "success",
-            message: "儲存成功",
+            type: "warning",
+            message: "請依照指示完成表單",
           });
-        } catch (error) {
-          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-      } else {
-        ElMessage({
-          type: "warning",
-          message: "請依照指示完成表單",
-        });
-      }
-    });
+      });
+    }
   } finally {
     loadingStore.hideLoading();
   }

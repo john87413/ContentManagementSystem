@@ -8,7 +8,7 @@ class ArticleController {
   // 創建新文章
   createArticle = async (req, res, next) => {
     try {
-      const article = await this.articleService.createArticle(req.body);
+      const article = await this.articleService.createArticle(req.body, req.user);
       res.status(201).json(article);
     } catch (error) {
       error.operation = error.operation || '文章建立';
@@ -64,7 +64,7 @@ class ArticleController {
   // 更新文章資料
   updateArticle = async (req, res, next) => {
     try {
-      const article = await this.articleService.updateArticle(req.params.id, req.body);
+      const article = await this.articleService.updateArticle(req.params.id, req.body, req.user);
       res.json(article);
     } catch (error) {
       error.operation = error.operation || '文章更新';
@@ -75,7 +75,7 @@ class ArticleController {
   // 刪除特定文章
   deleteArticle = async (req, res, next) => {
     try {
-      const result = await this.articleService.deleteArticle(req.params.id);
+      const result = await this.articleService.deleteArticle(req.params.id, req.user);
       res.json({ message: '文章已刪除' });
     } catch (error) {
       error.operation = error.operation || '文章刪除';

@@ -56,9 +56,9 @@ class UserService extends BaseService {
     }
 
     // 創建新用戶
-    async createUser(data) {
+    async createUser(data, user) {
         data.permissions = this.getPermissionsForRole(data.role);
-        return this.create(data);
+        return this.create(data, user);
     }
 
     // 取得分頁用戶列表
@@ -77,14 +77,14 @@ class UserService extends BaseService {
     }
 
     // 更新用戶資料
-    async updateUser(id, data) {
+    async updateUser(id, data, user) {
         data.permissions = this.getPermissionsForRole(data.role);
-        return this.update(id, data);
+        return this.update(id, data, user);
     }
 
     // 刪除特定用戶
-    async deleteUser(id) {
-        return this.delete(id);
+    async deleteUser(id, user) {
+        return this.delete(id, user);
     }
 }
 

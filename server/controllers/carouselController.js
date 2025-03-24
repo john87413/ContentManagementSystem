@@ -8,7 +8,7 @@ class CarouselController {
   // 創建新輪播圖
   createCarousel = async (req, res, next) => {
     try {
-      const carousel = await this.carouselService.createCarousel(req.body);
+      const carousel = await this.carouselService.createCarousel(req.body, req.user);
       res.status(201).json(carousel);
     } catch (error) {
       error.operation = error.operation || '門市刪除';
@@ -64,7 +64,7 @@ class CarouselController {
   // 更新輪播圖資料
   updateCarousel = async (req, res, next) => {
     try {
-      const carousel = await this.carouselService.updateCarousel(req.params.id, req.body);
+      const carousel = await this.carouselService.updateCarousel(req.params.id, req.body, req.user);
       res.json(carousel);
     } catch (error) {
       error.operation = error.operation || '門市刪除';
@@ -75,7 +75,7 @@ class CarouselController {
   // 刪除特定輪播圖
   deleteCarousel = async (req, res, next) => {
     try {
-      const result = await this.carouselService.deleteCarousel(req.params.id);
+      const result = await this.carouselService.deleteCarousel(req.params.id, req.user);
       res.json({ message: '輪播圖已刪除' });
     } catch (error) {
       error.operation = error.operation || '門市刪除';

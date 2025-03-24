@@ -102,7 +102,6 @@ const hasDuplicates = () => {
   const ids = model.articles
     .map((item) => item.article)
     .filter((id) => id !== "" && id !== null);
-  console.log(ids);
   return new Set(ids).size !== ids.length;
 };
 
@@ -117,23 +116,27 @@ const save = async () => {
   loadingStore.showLoading("儲存中...");
 
   try {
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        try {
-          if (props.id) {
-            await carouselApi.updateCarousel(props.id, model);
-          } else {
-            await carouselApi.createCarousel(model);
+    if (model.isProtected) {
+      ElMessage.error("系統範例資料不可編輯");
+    } else {
+      await formRef.value.validate(async (valid) => {
+        if (valid) {
+          try {
+            if (props.id) {
+              await carouselApi.updateCarousel(props.id, model);
+            } else {
+              await carouselApi.createCarousel(model);
+            }
+            router.push("/carousels/list");
+            ElMessage({ type: "success", message: "儲存成功" });
+          } catch (error) {
+            ElMessage.error(`儲存失敗: ${error.errorMessage}`);
           }
-          router.push("/carousels/list");
-          ElMessage({ type: "success", message: "儲存成功" });
-        } catch (error) {
-          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
+        } else {
+          ElMessage.error("請修正表單中的錯誤");
         }
-      } else {
-        ElMessage.error("請修正表單中的錯誤");
-      }
-    });
+      });
+    }
   } finally {
     loadingStore.hideLoading();
   }

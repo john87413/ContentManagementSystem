@@ -7,8 +7,8 @@ class CarouselService extends BaseService {
   }
 
   // 建立新輪播圖
-  async createCarousel(data) {
-    return this.create(data);
+  async createCarousel(data, user) {
+    return this.create(data, user);
   }
 
   // 取得分頁輪播圖列表
@@ -27,13 +27,13 @@ class CarouselService extends BaseService {
   }
 
   // 更新輪播圖資料
-  async updateCarousel(id, data) {
-    return this.update(id, data);
+  async updateCarousel(id, data, user) {
+    return this.update(id, data, user);
   }
 
   // 刪除特定輪播圖
-  async deleteCarousel(id) {
-    return this.delete(id);
+  async deleteCarousel(id, user) {
+    return this.delete(id, user);
   }
 }
 

@@ -20,7 +20,6 @@ class UploadController {
       const uploadResults = await this.uploadService.uploadImages(files);
       res.send(uploadResults);
     } catch (error) {
-      console.log(error);
       error.operation = error.operation || '圖片上傳';
       next(error);
     }

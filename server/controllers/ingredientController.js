@@ -8,7 +8,7 @@ class IngredientController {
   // 創建新配料
   createIngredient = async (req, res, next) => {
     try {
-      const ingredient = await this.ingredientService.createIngredient(req.body);
+      const ingredient = await this.ingredientService.createIngredient(req.body, req.user);
       res.status(201).json(ingredient);
     } catch (error) {
       error.operation = error.operation || '配料建立';
@@ -64,7 +64,7 @@ class IngredientController {
   // 更新配料資料
   updateIngredient = async (req, res, next) => {
     try {
-      const ingredient = await this.ingredientService.updateIngredient(req.params.id, req.body);
+      const ingredient = await this.ingredientService.updateIngredient(req.params.id, req.body, req.user);
       res.json(ingredient);
     } catch (error) {
       error.operation = error.operation || '配料更新';
@@ -75,7 +75,7 @@ class IngredientController {
   // 刪除特定配料
   deleteIngredient = async (req, res, next) => {
     try {
-      const result = await this.ingredientService.deleteIngredient(req.params.id);
+      const result = await this.ingredientService.deleteIngredient(req.params.id, req.user);
       res.json({ message: '配料已刪除' });
     } catch (error) {
       error.operation = error.operation || '配料刪除';

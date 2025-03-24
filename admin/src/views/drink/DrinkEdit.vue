@@ -24,14 +24,12 @@
             ></el-input-number>
           </el-form-item>
           <el-form-item label="類型" prop="category">
-            <el-select v-model="model.category">
-              <el-option
-                v-for="item in categories"
-                :key="item._id"
-                :label="item.name"
-                :value="item._id"
-              ></el-option>
-            </el-select>
+            <PaginatedSearchSelect
+              v-model="model.category"
+              :fetch-method="fetchCategoriesForSelect"
+              :selected-item-data="selectedCategory"
+              placeholder="請選擇或搜尋上級分類"
+            />
           </el-form-item>
           <el-form-item label="上傳圖片">
             <ImageUpload
@@ -105,6 +103,7 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
 import ImageUpload from "@/components/ImageUpload.vue";
+import PaginatedSearchSelect from "@/components/PaginatedSearchSelect.vue";
 
 import drinkApi from "@/api/drinkApi";
 import categoryApi from "@/api/categoryApi";
@@ -122,7 +121,7 @@ const router = useRouter();
 const formRef = ref(null);
 const uploaderRef = ref(null);
 const activeTab = ref("basic");
-const categories = reactive([]);
+const selectedCategory = ref(null);
 const model = reactive({
   name: "",
   price: null,
@@ -155,35 +154,35 @@ const loadingStore = useLoadingStore();
 // methods
 const save = async () => {
   loadingStore.showLoading("儲存中...");
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        await uploadImage();
-
-        if (props.id) {
-          await drinkApi.updateDrink(props.id, model);
-        } else {
-          await drinkApi.createDrink(model);
-        }
-
-        loadingStore.hideLoading();
-        router.push("/drinks/list");
-
-        ElMessage({
-          type: "success",
-          message: "儲存成功",
-        });
-      } catch (error) {
-        ElMessage.error(`儲存失敗: ${error.errorMessage}`);
-      }
+  try {
+    if (model.isProtected) {
+      ElMessage.error("系統範例資料不可編輯");
     } else {
-      ElMessage({
-        type: "warning",
-        message: "請依照指示完成表單",
+      await formRef.value.validate(async (valid) => {
+        if (valid) {
+          try {
+            await uploadImage();
+
+            if (props.id) {
+              await drinkApi.updateDrink(props.id, model);
+            } else {
+              await drinkApi.createDrink(model);
+            }
+
+            router.push("/drinks/list");
+
+            ElMessage({ type: "success", message: "儲存成功" });
+          } catch (error) {
+            ElMessage.error(`儲存失敗: ${error.errorMessage}`);
+          }
+        } else {
+          ElMessage.error("請修正表單中的錯誤");
+        }
       });
     }
-  });
-  loadingStore.hideLoading();
+  } finally {
+    loadingStore.hideLoading();
+  }
 };
 
 const uploadImage = async () => {
@@ -201,18 +200,26 @@ const fetchDrink = async () => {
     Object.assign(model, res.data);
 
     uploaderRef.value && uploaderRef.value.setContent(model.images);
+    // 獲取類別完整信息
+    if (model.category && typeof model.category === 'string') {
+      const category = await categoryApi.fetchCategory(model.category);
+      selectedCategory.value = category.data;
+    }
   } catch (error) {
     ElMessage.error(`獲取資料失敗: ${error.errorMessage}`);
   }
 };
 
-const fetchCategories = async () => {
+const fetchCategoriesForSelect = async (page, limit, query) => {
   try {
-    const res = await categoryApi.fetchCategories();
-    categories.length = 0;
-    categories.push(...res.data);
+    const response = await categoryApi.fetchCategories(page, limit, query);
+    return {
+      data: response.data.categories,
+      total: response.data.total,
+    };
   } catch (error) {
     ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);
+    return { data: [], total: 0 };
   }
 };
 
@@ -222,7 +229,6 @@ const cancel = () => {
 
 onMounted(async () => {
   loadingStore.showLoading("處理中...");
-  await fetchCategories();
   props.id && (await fetchDrink());
   loadingStore.hideLoading();
 });

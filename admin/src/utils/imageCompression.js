@@ -38,7 +38,7 @@ export const compressImage = async (file, options = {}) => {
         }
         // 如果圖片小於輕度壓縮閾值，不進行壓縮
 
-        console.log(`原始大小: ${originalSize.toFixed(2)}MB, 壓縮後: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        // console.log(`原始大小: ${originalSize.toFixed(2)}MB, 壓縮後: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
 
         // 確保返回的是 File 對象，並保持原始文件名和類型
         if (compressedFile instanceof Blob) {

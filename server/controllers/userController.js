@@ -47,7 +47,7 @@ class UserController {
     // 創建新用戶
     createUser = async (req, res, next) => {
         try {
-            const user = await this.userService.createUser(req.body);
+            const user = await this.userService.createUser(req.body, req.user);
             res.status(201).json(user);
         } catch (error) {
             error.operation = error.operation || '用戶建立';
@@ -102,7 +102,7 @@ class UserController {
     // 更新用戶資料
     updateUser = async (req, res, next) => {
         try {
-            const user = await this.userService.updateUser(req.params.id, req.body);
+            const user = await this.userService.updateUser(req.params.id, req.body, req.user);
             res.json(user);
         } catch (error) {
             error.operation = error.operation || '用戶更新';
@@ -113,7 +113,7 @@ class UserController {
     // 刪除特定用戶
     deleteUser = async (req, res, next) => {
         try {
-            const result = await this.userService.deleteUser(req.params.id);
+            const result = await this.userService.deleteUser(req.params.id, req.user);
             res.json({ message: '用戶已刪除' });
         } catch (error) {
             error.operation = error.operation || '用戶刪除';

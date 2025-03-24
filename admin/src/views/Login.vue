@@ -93,7 +93,6 @@ const handleLogin = async () => {
       }
     });
   } catch (error) {
-    console.log(error);
     ElMessage.error(error.errorMessage || "登入失敗");
   } finally {
     loadingStore.hideLoading();
