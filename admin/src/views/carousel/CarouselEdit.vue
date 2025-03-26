@@ -27,23 +27,19 @@
               trigger: 'blur',
             }"
           >
-            <el-select v-model="item.article" @change="handleArticleChange(i)">
-              <el-option
-                v-for="item in articles"
-                :key="item._id"
-                :label="item.title"
-                :value="item._id"
-              >
-              </el-option>
-            </el-select>
+            <PaginatedSearchSelect
+              v-model="item.article"
+              :fetch-method="fetchArticlesForSelect"
+              :selected-item-data="selectedArticlesInfo[item.article]"
+              :label-key="'title'"
+              placeholder="請選擇或搜尋文章"
+              @update:model-value="(val) => handleArticleChange(i, val)"
+            />
           </el-form-item>
-          <el-form-item v-if="item.article" label="文章圖片">
+          <el-form-item v-if="item.article && selectedArticlesInfo[item.article]" label="文章圖片">
             <img
               class="preview-image"
-              :src="
-                articles.find((article) => article._id === item.article).image
-                  .imgUrl
-              "
+              :src="selectedArticlesInfo[item.article]?.image?.imgUrl"
               alt=""
             />
           </el-form-item>
@@ -68,6 +64,7 @@ import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 
 import { useLoadingStore } from "@/stores/LoadingStore";
+import PaginatedSearchSelect from "@/components/PaginatedSearchSelect.vue";
 import carouselApi from "@/api/carouselApi";
 import articleApi from "@/api/articleApi";
 
@@ -80,7 +77,8 @@ const router = useRouter();
 const loadingStore = useLoadingStore();
 
 const model = reactive({ name: "", articles: [] });
-const articles = reactive([]);
+// 用來儲存選中的文章資訊，包含圖片URL
+const selectedArticlesInfo = reactive({});
 const formRef = ref(null);
 const rules = {
   name: [{ required: true, message: "名稱不得空白", trigger: "blur" }],
@@ -105,10 +103,36 @@ const hasDuplicates = () => {
   return new Set(ids).size !== ids.length;
 };
 
-const handleArticleChange = (index) => {
+const handleArticleChange = async (index, newArticleId) => {
+  // 先檢查是否有重複
   if (hasDuplicates()) {
     ElMessage.error("不能選擇重複文章");
     model.articles[index].article = "";
+    return;
+  }
+};
+
+const fetchArticlesForSelect = async (page, limit, query) => {
+  try {
+    const response = await articleApi.fetchArticles(page, limit, query, "title", "asc");
+    
+    // 確保我們有正確的結構用於分頁搜索選擇器
+    const articleData = response.data.articles || [];
+    
+    // 保存文章資訊到本地，這樣就可以立即獲取圖片
+    articleData.forEach(article => {
+      if (article._id && !selectedArticlesInfo[article._id]) {
+        selectedArticlesInfo[article._id] = article;
+      }
+    });
+    
+    return {
+      data: articleData,
+      total: response.data.total || 0
+    };
+  } catch (error) {
+    ElMessage.error(`獲取文章資料失敗: ${error.errorMessage}`);
+    return { data: [], total: 0 };
   }
 };
 
@@ -146,18 +170,23 @@ const fetchCarousel = async () => {
   try {
     const res = await carouselApi.fetchCarousel(props.id);
     Object.assign(model, res.data);
+    
+    // 載入所有選定文章的詳細資訊
+    for (const item of model.articles) {
+      if (item.article && !selectedArticlesInfo[item.article]) {
+        try {
+          loadingStore.showLoading(`載入文章資訊...`);
+          const articleRes = await articleApi.fetchArticle(item.article);
+          selectedArticlesInfo[item.article] = articleRes.data;
+        } catch (err) {
+          ElMessage.error(`無法載入文章資訊`);
+        } finally {
+          loadingStore.hideLoading();
+        }
+      }
+    }
   } catch (error) {
     ElMessage.error(`獲取輪播圖資料失敗: ${error.errorMessage}`);
-  }
-};
-
-const fetchArticles = async () => {
-  try {
-    const res = await articleApi.fetchArticles();
-    articles.length = 0;
-    articles.push(...res.data);
-  } catch (error) {
-    ElMessage.error(`獲取文章資料失敗: ${error.errorMessage}`);
   }
 };
 
@@ -167,7 +196,6 @@ const cancel = () => {
 
 onMounted(async () => {
   loadingStore.showLoading("加載中...");
-  await fetchArticles();
   props.id && (await fetchCarousel());
   loadingStore.hideLoading();
 });
