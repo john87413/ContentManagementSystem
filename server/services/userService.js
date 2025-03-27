@@ -17,11 +17,11 @@ class UserService extends BaseService {
         };
 
         switch (role) {
-            case 'superAdmin':
-                permissions.contentManagement = true;
-                permissions.marketingManagement = true;
-                permissions.systemSettings = true;
-                break;
+            // case 'superAdmin':
+            //     permissions.contentManagement = true;
+            //     permissions.marketingManagement = true;
+            //     permissions.systemSettings = true;
+            //     break;
             case 'contentManager':
                 permissions.contentManagement = true;
                 break;

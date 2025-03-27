@@ -1,6 +1,8 @@
 <template>
   <div class="login-container">
     <el-form
+      v-loading="loadingStore.isLoading"
+      :element-loading-text="loadingStore.loadingText"
       ref="loginFormRef"
       :model="loginForm"
       :rules="loginRules"
@@ -32,11 +34,16 @@
           type="primary"
           native-type="submit"
           class="login-button"
-          :loading="loading"
+          :loading="loadingStore.isLoading"
         >
           登入
         </el-button>
       </el-form-item>
+      <div class="register-link">
+        還沒有帳號？<el-link type="primary" @click="goToRegister"
+          >註冊帳號</el-link
+        >
+      </div>
     </el-form>
   </div>
 </template>
@@ -55,7 +62,6 @@ const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
 
 const loginFormRef = ref(null);
-const loading = ref(false);
 
 const loginForm = reactive({
   username: "",
@@ -80,7 +86,7 @@ const loginRules = {
 };
 
 const handleLogin = async () => {
-  if (!loginFormRef.value) return; // why need this line?
+  if (!loginFormRef.value) return;
 
   try {
     await loginFormRef.value.validate(async (valid) => {
@@ -97,6 +103,10 @@ const handleLogin = async () => {
   } finally {
     loadingStore.hideLoading();
   }
+};
+
+const goToRegister = () => {
+  router.push("/register");
 };
 </script>
 
@@ -124,5 +134,12 @@ const handleLogin = async () => {
 
 .login-button {
   width: 100%;
+}
+
+.register-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
 }
 </style>

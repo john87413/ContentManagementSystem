@@ -32,7 +32,6 @@
       </el-form-item>
       <el-form-item label="角色" prop="role">
         <el-select v-model="model.role">
-          <el-option label="超級管理員" value="superAdmin"></el-option>
           <el-option label="內容管理員" value="contentManager"></el-option>
           <el-option label="行銷管理員" value="marketingManager"></el-option>
           <el-option label="系統管理員" value="systemAdmin"></el-option>

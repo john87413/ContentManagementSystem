@@ -32,7 +32,8 @@ import {
   ElLoading,
   ElRow,
   ElCol,
-  ElEmpty
+  ElEmpty,
+  ElLink
 } from 'element-plus'
 
 // 引入樣式
@@ -75,7 +76,8 @@ const components = [
   ElRate,
   ElRow,
   ElCol,
-  ElEmpty
+  ElEmpty,
+  ElLink
 ]
 
 // 批量註冊組件
