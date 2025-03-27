@@ -121,19 +121,24 @@ const fetchCategoriesForSelect = async (page, limit, query) => {
     const filteredCategories = response.data.categories.filter(
       (cat) => cat._id !== props.id
     );
+    
+    // 計算實際總數（如果過濾掉了當前分類，總數要減一）
+    const adjustedTotal = props.id && response.data.categories.some(cat => cat._id === props.id) 
+      ? response.data.total - 1 
+      : response.data.total;
 
     // 如果是第一頁且沒有搜索詞，添加"無上級分類"選項
     if (page === 1 && !query) {
       return {
         data: [{ _id: "", name: "無 (作為上級分類)" }, ...filteredCategories],
-        total: response.data.total + 1, // 總數加1
+        total: adjustedTotal + 1, // 總數加1（為"無上級分類"選項）
       };
     }
 
     // 搜尋模式或非第一頁，只返回過濾後的結果
     return {
       data: filteredCategories,
-      total: response.data.total,
+      total: adjustedTotal,
     };
   } catch (error) {
     ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);

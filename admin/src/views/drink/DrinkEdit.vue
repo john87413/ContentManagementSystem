@@ -28,7 +28,7 @@
               v-model="model.category"
               :fetch-method="fetchCategoriesForSelect"
               :selected-item-data="selectedCategory"
-              placeholder="請選擇或搜尋上級分類"
+              placeholder="請選擇或搜尋分類"
             />
           </el-form-item>
           <el-form-item label="上傳圖片">

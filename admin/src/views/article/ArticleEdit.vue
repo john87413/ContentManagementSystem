@@ -14,14 +14,12 @@
         <el-input v-model="model.title"></el-input>
       </el-form-item>
       <el-form-item label="類型" prop="category">
-        <el-select v-model="model.category">
-          <el-option
-            v-for="item in categories"
-            :key="item._id"
-            :label="item.name"
-            :value="item._id"
-          ></el-option>
-        </el-select>
+        <PaginatedSearchSelect
+          v-model="model.category"
+          :fetch-method="fetchCategoriesForSelect"
+          :selected-item-data="selectedCategory"
+          placeholder="請選擇或搜尋分類"
+        />
       </el-form-item>
       <el-form-item label="上傳圖片">
         <ImageUpload
@@ -46,9 +44,11 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
-import { useLoadingStore } from "@/stores/LoadingStore";
+import PaginatedSearchSelect from "@/components/PaginatedSearchSelect.vue";
 import ImageUpload from "@/components/ImageUpload.vue";
 import QuillEditor from "@/components/QuillEditor.vue";
+
+import { useLoadingStore } from "@/stores/LoadingStore";
 import articleApi from "@/api/articleApi";
 import categoryApi from "@/api/categoryApi";
 
@@ -67,7 +67,7 @@ const loadingStore = useLoadingStore();
 const formRef = ref(null);
 const uploaderRef = ref(null);
 const quillEditorRef = ref(null);
-const categories = reactive([]);
+const selectedCategory = ref(null);
 const model = reactive({
   title: "",
   category: null,
@@ -140,18 +140,27 @@ const fetchArticle = async () => {
     quillEditorRef.value && quillEditorRef.value.setContent(model.content);
     uploaderRef.value &&
       uploaderRef.value.setContent(model.image ? [model.image] : []);
+
+    // 獲取類別完整信息
+    if (model.category && typeof model.category === 'string') {
+      const category = await categoryApi.fetchCategory(model.category);
+      selectedCategory.value = category.data;
+    }
   } catch (error) {
     ElMessage.error(`獲取資料失敗: ${error.errorMessage}`);
   }
 };
 
-const fetchCategories = async () => {
+const fetchCategoriesForSelect = async (page, limit, query) => {
   try {
-    const res = await categoryApi.fetchCategories();
-    categories.length = 0;
-    categories.push(...res.data.filter((c) => c._id !== props.id));
+    const response = await categoryApi.fetchCategories(page, limit, query);
+    return {
+      data: response.data.categories,
+      total: response.data.total,
+    };
   } catch (error) {
-    ElMessage.error(`獲取資料失敗: ${error.errorMessage}`);
+    ElMessage.error(`獲取類別資料失敗: ${error.errorMessage}`);
+    return { data: [], total: 0 };
   }
 };
 
@@ -161,7 +170,6 @@ const cancel = () => {
 
 onMounted(async () => {
   loadingStore.showLoading("處理中...");
-  await fetchCategories();
   props.id && (await fetchArticle());
   loadingStore.hideLoading();
 });

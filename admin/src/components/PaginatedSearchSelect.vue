@@ -118,6 +118,7 @@ const loadMoreData = async () => {
 
     // 更新頁碼和狀態
     currentPage.value = nextPage;
+    total.value = response.total;
     hasMore.value = options.value.length < total.value;
   } catch (error) {
     ElMessage.error(`載入更多資料失敗: ${error.errorMessage}`);
