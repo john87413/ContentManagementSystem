@@ -201,7 +201,6 @@ class BaseService {
             // 檢查ID格式
             this.validateId(id);
 
-            // 查找資源
             const resource = await this.model.findById(id);
 
             // 檢查資源是否存在
@@ -219,8 +218,9 @@ class BaseService {
             // 檢查ID格式
             this.validateId(id);
 
-            // 檢查資源是否存在
             const resource = await this.model.findById(id);
+
+            // 檢查資源是否存在
             this.validateResourceExists(resource, id);
 
             // 檢查是否為受保護資料
@@ -252,7 +252,6 @@ class BaseService {
             // 檢查ID格式
             this.validateId(id);
 
-            // 查找資源
             const resource = await this.model.findById(id);
 
             // 檢查資源是否存在

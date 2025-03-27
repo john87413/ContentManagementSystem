@@ -33,11 +33,16 @@ class CategoryService extends BaseService {
       throw new ValidationError('分類不能設定自己為父分類');
     }
     
-    return this.update(id, data);
+    return this.update(id, data, user);
   }
 
   // 刪除特定分類
   async deleteCategory(id, user) {
+    // 檢查是否有子分類引用該分類
+    const hasChildCategories = await this.model.exists({ parent: id });
+    if (hasChildCategories) {
+      throw new ValidationError('無法刪除：此分類有子分類正在使用');
+    }
     return this.delete(id, user);
   }
 }
