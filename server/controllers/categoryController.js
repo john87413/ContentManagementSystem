@@ -1,91 +1,42 @@
+const BaseController = require('./BaseController');
 const categoryService = require("../services/categoryService");
 
-class CategoryController {
+class CategoryController extends BaseController {
   constructor(categoryService) {
-    this.categoryService = categoryService;
+    super(categoryService, '分類');
   }
 
   // 創建新分類
   createCategory = async (req, res, next) => {
-    try {
-      const category = await this.categoryService.createCategory(req.body, req.user);
-      res.status(201).json(category);
-    } catch (error) {
-      error.operation = error.operation || '分類建立';
-      next(error);
-    }
-  }
+    return await this.create(req, res, next);
+  };
 
   // 取得分類列表
   getCategories = async (req, res, next) => {
-    try {
-      const { page, limit, nameQuery = "", sortField = "", sortOrder = "" } = req.query;
-
-      // 如果有提供分頁參數
-      if (page && limit) {
-        const options = {
-          populate: {
-            path: "parent",
-            select: "name _id"
-          }, // 關聯父分類資料
-          skip: (parseInt(page) - 1) * parseInt(limit),
-          limit: parseInt(limit),
-        };
-
-        // 添加排序選項
-        if (sortField && sortOrder) {
-          const sortDirection = sortOrder === 'desc' ? -1 : 1;
-          options.sort = { [sortField]: sortDirection };
-        }
-
-        // 建立搜尋條件
-        const query = nameQuery ? { name: new RegExp(nameQuery, 'i') } : {};
-
-        const paginatedCategories = await this.categoryService.getCategoriesWithPagination(options, query);
-        res.json(paginatedCategories);
-      } else {
-        // 若無分頁參數則返回全部分類
-        const categories = await this.categoryService.getAllCategories();
-        res.json(categories);
+    const categoryOptions = {
+      populate: {
+        path: "parent",
+        select: "name _id"
       }
-    } catch (error) {
-      error.operation = error.operation || '分類列表取得';
-      next(error);
-    }
-  }
+    };
+    
+    return await this.getAll(req, res, next, categoryOptions);
+  };
 
   // 根據ID取得特定分類
   getCategoryById = async (req, res, next) => {
-    try {
-      const category = await this.categoryService.getCategoryById(req.params.id);
-      res.json(category);
-    } catch (error) {
-      error.operation = error.operation || '分類取得';
-      next(error);
-    }
-  }
+    return await this.getById(req, res, next);
+  };
 
   // 更新分類資料
   updateCategory = async (req, res, next) => {
-    try {
-      const category = await this.categoryService.updateCategory(req.params.id, req.body, req.user);
-      res.json(category);
-    } catch (error) {
-      error.operation = error.operation || '分類更新';
-      next(error);
-    }
-  }
+    return await this.update(req, res, next);
+  };
 
   // 刪除特定分類
   deleteCategory = async (req, res, next) => {
-    try {
-      const result = await this.categoryService.deleteCategory(req.params.id, req.user);
-      res.json({ message: '分類已刪除' });
-    } catch (error) {
-      error.operation = error.operation || '分類刪除';
-      next(error);
-    }
-  }
+    return await this.delete(req, res, next);
+  };
 }
 
 module.exports = new CategoryController(categoryService);

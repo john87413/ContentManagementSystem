@@ -1,87 +1,35 @@
+const BaseController = require('./BaseController');
 const drinkService = require("../services/drinkService");
 
-class DrinkController {
+class DrinkController extends BaseController {
   constructor(drinkService) {
-    this.drinkService = drinkService;
+    super(drinkService, '飲品');
   }
 
   // 創建新飲品
   createDrink = async (req, res, next) => {
-    try {
-      const drink = await this.drinkService.createDrink(req.body, req.user);
-      res.status(201).json(drink);
-    } catch (error) {
-      error.operation = error.operation || '飲品建立';
-      next(error);
-    }
-  }
+    return await this.create(req, res, next);
+  };
 
   // 取得飲品列表
   getDrinks = async (req, res, next) => {
-    try {
-      const { page, limit, nameQuery = "", sortField = "", sortOrder = "" } = req.query;
-
-      // 如果有提供分頁參數
-      if (page && limit) {
-        const options = {
-          skip: (parseInt(page) - 1) * parseInt(limit),
-          limit: parseInt(limit),
-        };
-        
-        // 添加排序選項
-        if (sortField && sortOrder) {
-          const sortDirection = sortOrder === 'desc' ? -1 : 1;
-          options.sort = { [sortField]: sortDirection };
-        }
-
-        // 建立搜尋條件
-        const query = nameQuery ? { name: new RegExp(nameQuery, 'i') } : {};
-
-        const paginatedDrinks = await this.drinkService.getDrinksWithPagination(options, query);
-        res.json(paginatedDrinks);
-      } else {
-        // 若無分頁參數則返回全部飲品
-        const drinks = await this.drinkService.getAllDrinks();
-        res.json(drinks);
-      }
-    } catch (error) {
-      error.operation = error.operation || '飲品列表取得';
-      next(error);
-    }
-  }
+    return await this.getAll(req, res, next);
+  };
 
   // 根據ID取得特定飲品
   getDrinkById = async (req, res, next) => {
-    try {
-      const drink = await this.drinkService.getDrinkById(req.params.id);
-      res.json(drink);
-    } catch (error) {
-      error.operation = error.operation || '飲品取得';
-      next(error);
-    }
-  }
+    return await this.getById(req, res, next);
+  };
 
   // 更新飲品資料
   updateDrink = async (req, res, next) => {
-    try {
-      const drink = await this.drinkService.updateDrink(req.params.id, req.body, req.user);
-      res.json(drink);
-    } catch (error) {
-      error.operation = error.operation || '飲品更新';
-      next(error);
-    }
-  }
+    return await this.update(req, res, next);
+  };
 
   // 刪除特定飲品
   deleteDrink = async (req, res, next) => {
-    try {
-      const result = await this.drinkService.deleteDrink(req.params.id, req.user);
-      res.json({ message: "飲品已刪除" });
-    } catch (error) {
-      error.operation = error.operation || '飲品刪除';
-      next(error);
-    }
-  }
+    return await this.delete(req, res, next);
+  };
 }
 
 module.exports = new DrinkController(drinkService);
