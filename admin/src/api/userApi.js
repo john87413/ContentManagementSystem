@@ -4,6 +4,10 @@ const login = (data) => {
     return axios.post("/rest/users/login", data);
 };
 
+const validateToken = () => {
+    return axios.get("/rest/users/validate-token");
+};
+
 const fetchUsers = (page, limit, nameQuery = "", sortField = "", sortOrder = "") => {
     const params = {
         page,
@@ -33,6 +37,7 @@ const deleteUser = (id) => {
 
 export default {
     login,
+    validateToken,
     fetchUsers,
     fetchUser,
     createUser,

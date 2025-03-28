@@ -15,16 +15,20 @@ const requirePermissions = (requiredPermissions = [], options = { requireAll: tr
       // 檢查用戶是否擁有指定的權限
       let hasPermission;
 
-      if (options.requireAll) {
-        // 要求擁有所有指定的權限
-        hasPermission = requiredPermissions.every(permission =>
-          decoded.permissions.includes(permission)
-        );
+      if (requiredPermissions.length === 0) {
+        hasPermission = true;
       } else {
-        // 只要擁有其中一個權限即可
-        hasPermission = requiredPermissions.some(permission =>
-          decoded.permissions.includes(permission)
-        );
+        if (options.requireAll) {
+          // 要求擁有所有指定的權限
+          hasPermission = requiredPermissions.every(permission =>
+            decoded.permissions.includes(permission)
+          );
+        } else {
+          // 只要擁有其中一個權限即可
+          hasPermission = requiredPermissions.some(permission =>
+            decoded.permissions.includes(permission)
+          );
+        }
       }
 
       if (!hasPermission) {

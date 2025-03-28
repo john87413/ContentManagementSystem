@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { ElMessage } from 'element-plus';
+import userApi from '@/api/userApi';
 
 import MainView from '@/views/MainView.vue'
 import Login from '@/views/Login.vue'
@@ -74,7 +75,7 @@ const router = createRouter({
 })
 
 // 路由守衛
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user'))
 
@@ -88,6 +89,12 @@ router.beforeEach((to, from, next) => {
   if (!token) {
     next('/login')
     return
+  }
+
+  // 在首次進入應用或從登入頁面進入時驗證 token
+  if (from.path === '/login' || from.name === undefined) {
+    // 驗證 token
+    await userApi.validateToken()
   }
 
   // 檢查權限
