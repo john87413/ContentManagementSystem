@@ -19,7 +19,6 @@ class CategoryController extends BaseController {
         select: "name _id"
       }
     };
-    console.log("test");
     return await super.getAll(req, res, next, categoryOptions);
   };
 

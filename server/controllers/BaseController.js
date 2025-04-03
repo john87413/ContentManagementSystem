@@ -6,7 +6,7 @@ class BaseController {
     }
 
     // 創建資源
-    create = async (req, res, next) => {
+    async create(req, res, next) {
         try {
             const resource = await this.service.create(req.body, req.user);
             res.status(201).json(resource);
@@ -18,7 +18,7 @@ class BaseController {
 
     // 取得資源列表（支援分頁、搜尋、排序）
     // 添加參數 customOptions 允許子類傳入自定義選項
-    getAll = async (req, res, next, customOptions = {}, searchField = "name") => {
+    async getAll(req, res, next, customOptions = {}, searchField = "name") {
         try {
             const { page, limit, nameQuery = "", sortField = "", sortOrder = "" } = req.query;
 
@@ -47,14 +47,13 @@ class BaseController {
                 res.json(resources);
             }
         } catch (error) {
-            console.log(error);
             error.operation = error.operation || `${this.resourceName}列表取得`;
             next(error);
         }
     };
 
     // 根據ID取得特定資源
-    getById = async (req, res, next) => {
+    async getById(req, res, next) {
         try {
             const resource = await this.service.getById(req.params.id);
             res.json(resource);
@@ -65,7 +64,7 @@ class BaseController {
     };
 
     // 更新資源資料
-    update = async (req, res, next) => {
+    async update(req, res, next) {
         try {
             const resource = await this.service.update(req.params.id, req.body, req.user);
             res.json(resource);
@@ -76,7 +75,7 @@ class BaseController {
     };
 
     // 刪除特定資源
-    delete = async (req, res, next) => {
+    async delete(req, res, next) {
         try {
             const result = await this.service.delete(req.params.id, req.user);
             res.json({ message: `${this.resourceName}已刪除` });
