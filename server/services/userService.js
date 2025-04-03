@@ -79,7 +79,7 @@ class UserService extends BaseService {
     }
 
     // 建立新用戶
-    async createUser(data, user) {
+    async create(data, user) {
         // 驗證用戶是否存在
         const existingUser = await this.model.findOne({ username: data.username });
         if (existingUser) {
@@ -89,26 +89,26 @@ class UserService extends BaseService {
         // 處理角色權限
         data.permissions = this.getPermissionsForRole(data.role);
 
-        return this.create(data, user);
+        return super.create(data, user);
     }
 
     // 取得分頁用戶列表
-    async getUsersWithPagination(options, query) {
-        return this.getWithPagination(options, query);
+    async getWithPagination(options, query) {
+        return super.getWithPagination(options, query);
     }
 
     // 取得所有用戶，不分頁
-    async getAllUsers() {
-        return this.getAll();
+    async getAll() {
+        return super.getAll();
     }
 
     // 依據ID取得特定用戶
-    async getUserById(id) {
-        return this.getById(id);
+    async getById(id) {
+        return super.getById(id);
     }
 
     // 更新用戶資料
-    async updateUser(id, data, currentUser) {
+    async update(id, data, currentUser) {
         // 取得更新用戶
         const userToUpdate = await this.getById(id);
 
@@ -127,11 +127,11 @@ class UserService extends BaseService {
             data.permissions = this.getPermissionsForRole(data.role);
         }
 
-        return this.update(id, data, currentUser);
+        return super.update(id, data, currentUser);
     }
 
     // 刪除特定用戶
-    async deleteUser(id, currentUser) {
+    async delete(id, currentUser) {
         // 取得刪除用戶
         const userToDelete = await this.getById(id);
 
@@ -143,7 +143,7 @@ class UserService extends BaseService {
             throw new ValidationError('不可刪除超級管理員帳號');
         }
 
-        return this.delete(id, currentUser);
+        return super.delete(id, currentUser);
     }
 }
 

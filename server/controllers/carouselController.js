@@ -7,28 +7,28 @@ class CarouselController extends BaseController {
   }
 
   // 創建新輪播圖
-  createCarousel = async (req, res, next) => {
-    return await this.create(req, res, next);
+  async create(req, res, next) {
+    return await super.create(req, res, next);
   };
 
   // 取得輪播圖列表
-  getCarousels = async (req, res, next) => {
-    return await this.getAll(req, res, next);
+  async getAll (req, res, next) {
+    return await super.getAll(req, res, next);
   };
 
   // 根據ID取得特定輪播圖
-  getCarouselById = async (req, res, next) => {
-    return await this.getById(req, res, next);
+  async getById (req, res, next) {
+    return await super.getById(req, res, next);
   };
 
   // 更新輪播圖資料
-  updateCarousel = async (req, res, next) => {
-    return await this.update(req, res, next);
+  async update (req, res, next) {
+    return await super.update(req, res, next);
   };
 
   // 刪除特定輪播圖
-  deleteCarousel = async (req, res, next) => {
-    return await this.delete(req, res, next);
+  async delete (req, res, next) {
+    return await super.delete(req, res, next);
   };
 }
 

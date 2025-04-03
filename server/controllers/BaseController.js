@@ -22,7 +22,6 @@ class BaseController {
         try {
             const { page, limit, nameQuery = "", sortField = "", sortOrder = "" } = req.query;
 
-
             // 如果有提供分頁參數
             if (page && limit) {
                 // 基本選項

@@ -7,33 +7,33 @@ class CarouselService extends BaseService {
   }
 
   // 建立新輪播圖
-  async createCarousel(data, user) {
-    return this.create(data, user);
+  async create(data, user) {
+    return super.create(data, user);
   }
 
   // 取得分頁輪播圖列表
-  async getCarouselsWithPagination(options, query) {
-    return this.getWithPagination(options, query);
+  async getWithPagination(options, query) {
+    return super.getWithPagination(options, query);
   }
 
   // 取得所有輪播圖，不分頁
-  async getAllCarousels() {
-    return this.getAll();
+  async getAll() {
+    return super.getAll();
   }
 
   // 依據ID取得特定輪播圖
-  async getCarouselById(id) {
-    return this.getById(id);
+  async getById(id) {
+    return super.getById(id);
   }
 
   // 更新輪播圖資料
-  async updateCarousel(id, data, user) {
-    return this.update(id, data, user);
+  async update(id, data, user) {
+    return super.update(id, data, user);
   }
 
   // 刪除特定輪播圖
-  async deleteCarousel(id, user) {
-    return this.delete(id, user);
+  async delete(id, user) {
+    return super.delete(id, user);
   }
 }
 

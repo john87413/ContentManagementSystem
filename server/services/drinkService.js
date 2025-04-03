@@ -7,33 +7,33 @@ class DrinkService extends BaseService {
   }
 
   // 建立新飲品
-  async createDrink(data, user) {
-    return this.create(data, user);
+  async create(data, user) {
+    return super.create(data, user);
   }
 
   // 取得分頁飲品列表
-  async getDrinksWithPagination(options, query) {
-    return this.getWithPagination(options, query);
+  async getWithPagination(options, query) {
+    return super.getWithPagination(options, query);
   }
 
   // 取得所有飲品，不分頁
-  async getAllDrinks() {
-    return this.getAll();
+  async getAll() {
+    return super.getAll();
   }
 
   // 依據ID取得特定飲品
-  async getDrinkById(id) {
-    return this.getById(id);
+  async getById(id) {
+    return super.getById(id);
   }
 
   // 更新飲品資料
-  async updateDrink(id, data, user) {
-    return this.update(id, data, user);
+  async update(id, data, user) {
+    return super.update(id, data, user);
   }
 
   // 刪除特定飲品
-  async deleteDrink(id, user) {
-    return this.delete(id, user);
+  async delete(id, user) {
+    return super.delete(id, user);
   }
 }
 

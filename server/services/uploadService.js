@@ -1,6 +1,5 @@
 const { v4: uuidv4 } = require('uuid'); // UUID 生成器，產生唯一的檔案名稱
 const firebaseAdmin = require('../config/firebase'); // Firebase Admin SDK
-const { FileOperationError } = require('../errors/AppError'); // 自訂錯誤類別
 
 // 取得 Firebase Storage bucket 實例
 const bucket = firebaseAdmin.storage().bucket();
@@ -11,8 +10,8 @@ class UploadService {
   }
 
   // 上傳多個圖片到 Firebase Storage
-  uploadImages = async (files) => {
-    
+  async uploadImages(files) {
+
     // 將每個檔案轉換為上傳 Promise
     const uploadPromises = files.map(async (file) => {
       // 使用 UUID 生成唯一檔名，並保留原始副檔名
@@ -49,7 +48,7 @@ class UploadService {
   }
 
   // Firebase Storage 刪除指定圖片
-  deleteImage = async (fileName) => {
+  async deleteImage(fileName) {
     try {
       // 取得檔案參考並刪除
       const blob = this.bucket.file(fileName);
@@ -57,7 +56,6 @@ class UploadService {
       const [exists] = await blob.exists();
       if (!exists) {
         return '刪除成功';
-        // throw new FileOperationError('圖片不存在', 'delete');
       }
 
       await blob.delete();
