@@ -84,40 +84,44 @@ const save = async () => {
   loadingStore.showLoading("儲存中...");
 
   try {
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        try {
-          // Run both functions in parallel
-          await Promise.all([
-            uploadImage(),
-            quillEditorRef.value.uploadImageAndReplaceUrl(),
-          ]);
+    if (model.isProtected) {
+      ElMessage.error("系統範例資料不可編輯");
+    } else {
+      await formRef.value.validate(async (valid) => {
+        if (valid) {
+          try {
+            // Run both functions in parallel
+            await Promise.all([
+              uploadImage(),
+              quillEditorRef.value.uploadImageAndReplaceUrl(),
+            ]);
 
-          // Get content from Quill editor
-          model.content = quillEditorRef.value.getContent();
+            // Get content from Quill editor
+            model.content = quillEditorRef.value.getContent();
 
-          if (props.id) {
-            await articleApi.updateArticle(props.id, model);
-          } else {
-            await articleApi.createArticle(model);
+            if (props.id) {
+              await articleApi.updateArticle(props.id, model);
+            } else {
+              await articleApi.createArticle(model);
+            }
+
+            router.push("/articles/list");
+
+            ElMessage({
+              type: "success",
+              message: "儲存成功",
+            });
+          } catch (error) {
+            ElMessage.error(`儲存失敗: ${error.errorMessage}`);
           }
-
-          router.push("/articles/list");
-
+        } else {
           ElMessage({
-            type: "success",
-            message: "儲存成功",
+            type: "warning",
+            message: "請依照指示完成表單",
           });
-        } catch (error) {
-          ElMessage.error(`儲存失敗: ${error.errorMessage}`);
         }
-      } else {
-        ElMessage({
-          type: "warning",
-          message: "請依照指示完成表單",
-        });
-      }
-    });
+      });
+    }
   } finally {
     loadingStore.hideLoading();
   }
@@ -142,7 +146,7 @@ const fetchArticle = async () => {
       uploaderRef.value.setContent(model.image ? [model.image] : []);
 
     // 獲取類別完整信息
-    if (model.category && typeof model.category === 'string') {
+    if (model.category && typeof model.category === "string") {
       const category = await categoryApi.fetchCategory(model.category);
       selectedCategory.value = category.data;
     }

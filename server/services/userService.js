@@ -94,17 +94,26 @@ class UserService extends BaseService {
 
     // 取得分頁用戶列表
     async getWithPagination(options, query) {
+        query.role = { $ne: 'superAdmin' }; // 排除超級管理員
         return super.getWithPagination(options, query);
     }
 
     // 取得所有用戶，不分頁
     async getAll() {
+        query.role = { $ne: 'superAdmin' }; // 排除超級管理員
         return super.getAll();
     }
 
     // 依據ID取得特定用戶
     async getById(id) {
-        return super.getById(id);
+        const user = await super.getById(id);
+        
+        // 超級管理員，拒絕存取
+        if (user.role === 'superAdmin') {
+            throw new ValidationError('無法查看超級管理員資料');
+        }
+        
+        return user;
     }
 
     // 更新用戶資料

@@ -116,10 +116,8 @@ const fetchArticlesForSelect = async (page, limit, query) => {
   try {
     const response = await articleApi.fetchArticles(page, limit, query, "title", "asc");
     
-    // 確保我們有正確的結構用於分頁搜索選擇器
     const articleData = response.data.articles || [];
     
-    // 保存文章資訊到本地，這樣就可以立即獲取圖片
     articleData.forEach(article => {
       if (article._id && !selectedArticlesInfo[article._id]) {
         selectedArticlesInfo[article._id] = article;

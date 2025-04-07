@@ -222,7 +222,7 @@ class BaseService {
 
             // 檢查資源是否存在
             this.validateResourceExists(resource, id);
-
+            
             // 檢查是否為受保護資料
             if (resource.isProtected && !this.isSuperAdmin(user)) {
                 throw new ValidationError(`系統範例資料不可編輯`);
