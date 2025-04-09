@@ -25,12 +25,16 @@
       @sort-change="handleSortChange"
     >
       <slot name="table-columns" :formatDate="formatDate"></slot>
-      <el-table-column fixed="right" label="操作" width="200">
+      <el-table-column fixed="right" label="操作" width="auto">
         <template #default="{ row }">
-          <el-button type="primary" @click="editItem(row._id)">編輯</el-button>
-          <el-button v-if="hasDelete" type="primary" @click="deleteItem(row)">
-            刪除
-          </el-button>
+          <div class="action-buttons">
+            <el-button type="primary" @click="editItem(row._id)"
+              >編輯</el-button
+            >
+            <el-button v-if="hasDelete" type="danger" @click="deleteItem(row)">
+              刪除
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -178,3 +182,20 @@ onMounted(async () => {
   await fetchData();
 });
 </script>
+
+<style scoped>
+.action-buttons {
+  display: flex;
+}
+
+@media screen and (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  /* 使用 :deep() 深度選擇器 */
+  .action-buttons :deep(.el-button) {
+    margin: 2px 0;
+  }
+}
+</style>

@@ -24,7 +24,6 @@
       <el-table-column
         prop="updatedAt"
         label="更新時間"
-        width="220"
         sortable="custom"
       >
         <template #default="{ row }">

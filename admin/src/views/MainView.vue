@@ -1,10 +1,35 @@
 <template>
   <el-container style="height: 100vh">
-    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu router unique-opened :default-active="$route.path">
+    <el-aside
+      class="sidebar-container"
+      :width="sidebarStore.isCollapsed ? '64px' : '200px'"
+      style="background-color: rgb(238, 241, 246)"
+    >
+      <div class="sidebar-header">
+        <div class="logo" :class="{ 'logo-hidden': sidebarStore.isCollapsed }">
+          CMS
+        </div>
+        <el-icon
+          class="toggle-icon"
+          :class="{ 'toggle-centered': sidebarStore.isCollapsed }"
+          @click="sidebarStore.toggleSidebar"
+        >
+          <Fold v-if="!sidebarStore.isCollapsed" />
+          <Expand v-else />
+        </el-icon>
+      </div>
+      <el-menu
+        router
+        unique-opened
+        :default-active="$route.path"
+        :collapse="sidebarStore.isCollapsed"
+      >
         <!-- 內容管理 - 需要 contentManagement 權限 -->
         <el-sub-menu index="1" v-if="hasContentPermission">
-          <template #title> <i class="el-icon-message"></i>內容管理 </template>
+          <template #title>
+            <el-icon><Document /></el-icon>
+            <span>內容管理</span>
+          </template>
 
           <el-menu-item-group>
             <template #title>分類</template>
@@ -27,7 +52,10 @@
 
         <!-- 行銷管理 - 需要 marketingManagement 權限 -->
         <el-sub-menu index="2" v-if="hasMarketingPermission">
-          <template #title> <i class="el-icon-message"></i>行銷管理 </template>
+          <template #title>
+            <el-icon><Promotion /></el-icon>
+            <span>行銷管理</span>
+          </template>
 
           <el-menu-item-group>
             <template #title>輪播圖</template>
@@ -50,7 +78,10 @@
 
         <!-- 系統設置 - 需要 systemSettings 權限 -->
         <el-sub-menu index="3" v-if="hasSystemPermission">
-          <template #title> <i class="el-icon-message"></i>系統設置</template>
+          <template #title>
+            <el-icon><Tools /></el-icon>
+            <span>系統設置</span>
+          </template>
 
           <el-menu-item-group>
             <template #title>用戶</template>
@@ -77,31 +108,40 @@
 <script setup>
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ElMessageBox, ElMessage } from "element-plus";
+import {
+  Document,
+  Tools,
+  Promotion,
+  Expand,
+  Fold,
+} from "@element-plus/icons-vue";
 
-import { useAuthStore } from '@/stores/AuthStore';
+import { useAuthStore } from "@/stores/AuthStore";
+import { useSidebarStore } from "@/stores/SidebarStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const sidebarStore = useSidebarStore();
 
 // 獲取當前登錄用戶信息
 const currentUser = computed(() => authStore.getUser());
-const currentUserName = computed(() => currentUser.value?.username || '');
+const currentUserName = computed(() => currentUser.value?.username || "");
 
 // 根據用戶角色判斷權限
 const hasContentPermission = computed(() => {
   if (!currentUser.value || !currentUser.value.permissions) return false;
-  return currentUser.value.permissions.includes('contentManagement');
+  return currentUser.value.permissions.includes("contentManagement");
 });
 
 const hasMarketingPermission = computed(() => {
   if (!currentUser.value || !currentUser.value.permissions) return false;
-  return currentUser.value.permissions.includes('marketingManagement');
+  return currentUser.value.permissions.includes("marketingManagement");
 });
 
 const hasSystemPermission = computed(() => {
   if (!currentUser.value || !currentUser.value.permissions) return false;
-  return currentUser.value.permissions.includes('systemSettings');
+  return currentUser.value.permissions.includes("systemSettings");
 });
 
 // 登出處理
@@ -139,5 +179,55 @@ const logout = async () => {
 
 .el-aside {
   color: #333;
+}
+
+.el-menu {
+  background-color: rgb(238, 241, 246);
+  border-right: none;
+  transition: width 0.2s !important;
+}
+
+.sidebar-container {
+  transition: width 0.4s;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative; /* 添加相对定位 */
+  overflow: hidden; /* 防止logo溢出 */
+}
+
+.logo {
+  font-weight: bold;
+  opacity: 1;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translateX(0);
+}
+
+.logo-hidden {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.toggle-icon {
+  cursor: pointer;
+  font-size: 20px;
+  position: absolute;
+  right: 20px;
+  transition: right 0.3s, transform 0.3s;
+}
+
+.toggle-centered {
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.toggle-icon:hover {
+  color: #409eff;
 }
 </style>
