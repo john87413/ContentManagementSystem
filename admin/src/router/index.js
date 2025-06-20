@@ -6,7 +6,7 @@ import MainView from '@/views/MainView.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 
-// Prefetch components for better performance
+// 在打包時將組件分成不同的chunk，以便於按需加載，減少初始加載的大小
 const CategoryEdit = () => import(/* webpackChunkName: "category" */ '@/views/category/CategoryEdit.vue')
 const CategoryList = () => import(/* webpackChunkName: "category" */ '@/views/category/CategoryList.vue')
 const IngredientEdit = () => import(/* webpackChunkName: "ingredient" */ '@/views/ingredient/IngredientEdit.vue')
