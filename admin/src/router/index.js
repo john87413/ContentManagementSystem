@@ -6,21 +6,33 @@ import MainView from '@/views/MainView.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 
-// 在打包時將組件分成不同的chunk，以便於按需加載，減少初始加載的大小
-const CategoryEdit = () => import(/* webpackChunkName: "category" */ '@/views/category/CategoryEdit.vue')
-const CategoryList = () => import(/* webpackChunkName: "category" */ '@/views/category/CategoryList.vue')
-const IngredientEdit = () => import(/* webpackChunkName: "ingredient" */ '@/views/ingredient/IngredientEdit.vue')
-const IngredientList = () => import(/* webpackChunkName: "ingredient" */ '@/views/ingredient/IngredientList.vue')
-const DrinkEdit = () => import(/* webpackChunkName: "drink" */ '@/views/drink/DrinkEdit.vue')
-const DrinkList = () => import(/* webpackChunkName: "drink" */ '@/views/drink/DrinkList.vue')
-const ArticleEdit = () => import(/* webpackChunkName: "article" */ '@/views/article/ArticleEdit.vue')
-const ArticleList = () => import(/* webpackChunkName: "article" */ '@/views/article/ArticleList.vue')
-const CarouselEdit = () => import(/* webpackChunkName: "carousel" */ '@/views/carousel/CarouselEdit.vue')
-const CarouselList = () => import(/* webpackChunkName: "carousel" */ '@/views/carousel/CarouselList.vue')
-const ShopEdit = () => import(/* webpackChunkName: "shop" */ '@/views/shop/ShopEdit.vue')
-const ShopList = () => import(/* webpackChunkName: "shop" */ '@/views/shop/ShopList.vue')
-const UserEdit = () => import(/* webpackChunkName: "user" */ '@/views/user/UserEdit.vue')
-const UserList = () => import(/* webpackChunkName: "user" */ '@/views/user/UserList.vue')
+// Category components
+import CategoryEdit from '@/views/category/CategoryEdit.vue'
+import CategoryList from '@/views/category/CategoryList.vue'
+
+// Ingredient components
+import IngredientEdit from '@/views/ingredient/IngredientEdit.vue'
+import IngredientList from '@/views/ingredient/IngredientList.vue'
+
+// Drink components
+import DrinkEdit from '@/views/drink/DrinkEdit.vue'
+import DrinkList from '@/views/drink/DrinkList.vue'
+
+// Article components
+import ArticleEdit from '@/views/article/ArticleEdit.vue'
+import ArticleList from '@/views/article/ArticleList.vue'
+
+// Carousel components
+import CarouselEdit from '@/views/carousel/CarouselEdit.vue'
+import CarouselList from '@/views/carousel/CarouselList.vue'
+
+// Shop components
+import ShopEdit from '@/views/shop/ShopEdit.vue'
+import ShopList from '@/views/shop/ShopList.vue'
+
+// User components
+import UserEdit from '@/views/user/UserEdit.vue'
+import UserList from '@/views/user/UserList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
