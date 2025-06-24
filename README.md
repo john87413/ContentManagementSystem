@@ -1,6 +1,7 @@
 ﻿# 內容管理系統 (Content Management System)
 
 此專案為飲料店內容管理系統，採用前後端分離架構設計。整合 Vue 3 Composition API 與 Element Plus UI 框架打造的前端管理介面，搭配 Node.js/Express 建構的 RESTful API 後端，並使用 MongoDB 資料庫與 Firebase Storage 作為儲存解決方案。系統提供飲品與配料管理、門市據點維護、行銷內容發布與基於角色的使用者權限控制功能。
+
 [Demo Link](https://cms-psi-mauve.vercel.app/)
 
 [English Documentation](#english-documentation)
